@@ -1,46 +1,35 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
+title: Welcome to Scripty
+description: Get started building your docs site with Scripty.
 template: splash
 hero:
   title: |
-    Welcome to Starlight with
+    Welcome to
     <span
       class="font-black text-transparent
         bg-clip-text bg-gradient-to-b
         from-accent-700 to-accent-400
         dark:from-accent-500 dark:to-accent-200"
     >
-      Tailwind
+      Scripty
     </span>
-  tagline: Congrats on setting up a new Starlight project!
-  image:
-    file: ../../assets/houston.webp
+  tagline: Congrats on setting up a new Scripty project!
   actions:
     - text: Example Guide
       link: /guides/example/
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
-      icon: external
-      variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Canvas from '../../components/ASCIIRenderer/Canvas'
+import { objectsRender } from '../../components/ASCIIRenderer/utils'
 
-## Next steps
-
-<CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
-	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
-	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
-	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
-	</Card>
-</CardGrid>
+<div class="container md:max-w-[720px] max-w-[360px] mx-auto">
+  <Tabs>
+    <TabItem label="ASCII Renderer">
+      <Canvas fontSize={1} client:only="solid-js"/>
+    </TabItem>
+    <TabItem label="Elevation Map Renderer">
+    </TabItem>
+  </Tabs>
+</div>
