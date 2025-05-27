@@ -239,16 +239,17 @@ export class Vec2D {
 }
 
 export const objectsRender = (tick: number, isMobile: boolean) => {
+    const sizeMultiplier = isMobile ? 2 : 1
     const sunCentre = new Vec2D(0, 0)
     const planets = {
-        mercuryCentre: new Vec2D((45 + 4)/(isMobile ? 2 : 1), 0),
-        venusCentre: new Vec2D((45 + 8)/(isMobile ? 2 : 1), 0),
-        earthCentre: new Vec2D((45 + 11)/(isMobile ? 2 : 1), 0),
-        marsCentre: new Vec2D((45 + 17)/(isMobile ? 2 : 1), 0),
-        jupiterCentre: new Vec2D((45 + 57)/(isMobile ? 2 : 1), 0),
-        saturnCentre: new Vec2D((45 + 105)/(isMobile ? 2 : 1), 0),
-        uranusCentre: new Vec2D((45 + 211)/(isMobile ? 2 : 1), 0),
-        neptuneCentre: new Vec2D((45 + 300)/(isMobile ? 2 : 1), 0)
+        mercuryCentre: new Vec2D(Math.floor((45 + 4)/sizeMultiplier), 0),
+        venusCentre: new Vec2D(Math.floor((45 + 8)/sizeMultiplier), 0),
+        earthCentre: new Vec2D(Math.floor((45 + 11)/sizeMultiplier), 0),
+        marsCentre: new Vec2D(Math.floor((45 + 17)/sizeMultiplier), 0),
+        jupiterCentre: new Vec2D(Math.floor((45 + 57)/sizeMultiplier), 0),
+        saturnCentre: new Vec2D(Math.floor((45 + 105)/sizeMultiplier), 0),
+        uranusCentre: new Vec2D(Math.floor((45 + 211)/sizeMultiplier), 0),
+        neptuneCentre: new Vec2D(Math.floor((45 + 300)/sizeMultiplier), 0)
     }
     const speedMultiply = [0.24, 0.61, 1, 1.88, 11.86, 29.46, 84.01, 164.79]
     for (const [index, planet] of Array.from(
@@ -262,15 +263,16 @@ export const objectsRender = (tick: number, isMobile: boolean) => {
                 speedMultiply[index] * 10,
             )[0]
     }
-    return [
-        sunCentre.circle(45/(isMobile ? 2 : 1)),
-        planets.mercuryCentre.circle(0.38/(isMobile ? 2 : 1)),
-        planets.venusCentre.circle(0.94/(isMobile ? 2 : 1)),
-        planets.earthCentre.circle(1/(isMobile ? 2 : 1)),
-        planets.marsCentre.circle(0.53/(isMobile ? 2 : 1)),
-        planets.jupiterCentre.circle(11.21/(isMobile ? 2 : 1)),
-        planets.saturnCentre.circle(9.41/(isMobile ? 2 : 1)),
-        planets.uranusCentre.circle(3.98/(isMobile ? 2 : 1)),
-        planets.neptuneCentre.circle(3.81/(isMobile ? 2 : 1)),
+    const dots = [
+        sunCentre.circle(45/sizeMultiplier),
+        planets.mercuryCentre.circle(0.38/sizeMultiplier),
+        planets.venusCentre.circle(0.94/sizeMultiplier),
+        planets.earthCentre.circle(1/sizeMultiplier),
+        planets.marsCentre.circle(0.53/sizeMultiplier),
+        planets.jupiterCentre.circle(11.21/sizeMultiplier),
+        planets.saturnCentre.circle(9.41/sizeMultiplier),
+        planets.uranusCentre.circle(3.98/sizeMultiplier),
+        planets.neptuneCentre.circle(3.81/sizeMultiplier)
     ]
+    return dots
 }

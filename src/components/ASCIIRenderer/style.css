@@ -18,6 +18,7 @@ body {
 	border-radius: calc(var(--tab-switcher-border-radius) + 4px);
 	display: flex;
     margin-top: 0;
+	overflow: hidden;
 }
 .tab-list.tabbed-sidebar {
     list-style-type: none;
@@ -30,6 +31,7 @@ body {
 	padding: var(--tab-switcher-padding);
 	background-color: var(--tab-switcher-background-color);
 	margin-bottom: 1.5rem;
+	height: fit-content;
 }
 .tab-list.tabbed-sidebar .tab-item {
 	box-sizing: border-box;
