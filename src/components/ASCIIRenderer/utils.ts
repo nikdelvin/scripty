@@ -1,15 +1,11 @@
 export function getData(
     ctx: CanvasRenderingContext2D | null,
     source: HTMLImageElement | HTMLVideoElement,
-    isVideo?: boolean,
+    isVideo?: boolean
 ) {
     const gradient = ' .:!/r(l1Z4H9W8$@'
-    const width = isVideo
-        ? (source as HTMLVideoElement).videoWidth
-        : source.width
-    const height = isVideo
-        ? (source as HTMLVideoElement).videoHeight
-        : source.height
+    const width = isVideo ? (source as HTMLVideoElement).videoWidth : source.width
+    const height = isVideo ? (source as HTMLVideoElement).videoHeight : source.height
     ctx?.drawImage(source, 0, 0, width, height)
     const imageData = ctx?.getImageData(0, 0, width, height)
     const lettersData = []
@@ -30,13 +26,13 @@ export function getData(
     return {
         values: output.join(''),
         width,
-        height,
+        height
     }
 }
 
 export function updateDataFromImage(
     imageSrc: string,
-    callback: (data: { values: string; width: number; height: number }) => void,
+    callback: (data: { values: string; width: number; height: number }) => void
 ) {
     new Promise((resolve) => {
         const image = new Image()
@@ -54,18 +50,14 @@ export function updateDataFromImage(
                 values: string
                 width: number
                 height: number
-            },
+            }
         )
     })
 }
 
 export function updateDataFromVideo(
     videoSrc: string,
-    callback: (data: {
-        values: string
-        width: number
-        height: number
-    }) => boolean,
+    callback: (data: { values: string; width: number; height: number }) => boolean
 ) {
     const video = document.createElement('video')
     video.src = videoSrc
@@ -96,18 +88,12 @@ export async function updateDataFrom2DSpace(
         objectsRender: (tick: number, isMobile: boolean) => string[][]
         isMobile: boolean
     },
-    callback: (data: {
-        values: string
-        width: number
-        height: number
-    }) => boolean,
+    callback: (data: { values: string; width: number; height: number }) => boolean
 ) {
     for (let t = 0; t < 10000; t++) {
         await new Promise((resolve) => setTimeout(resolve, 16.67))
         const objects = space.objectsRender(t, space.isMobile)
-        const output: string[][] = new Array(space.height)
-            .fill(true)
-            .map(() => new Array(space.width).fill(' '))
+        const output: string[][] = new Array(space.height).fill(true).map(() => new Array(space.width).fill(' '))
         for (const coord of [...new Set(objects.flat())]) {
             const x = Number(coord.split(';')[0]) + Math.floor(space.width / 2)
             const y = Number(coord.split(';')[1]) + Math.floor(space.height / 2)
@@ -122,7 +108,7 @@ export async function updateDataFrom2DSpace(
         const check = callback({
             values: chunks.reverse().join('\n'),
             width: space.width,
-            height: space.height,
+            height: space.height
         })
         if (!check) {
             console.log('change source')
@@ -177,61 +163,35 @@ export class Vec2D {
     public line(vector: Vec2D): string[] {
         const dots = []
         for (let t = 0; t < 1; t += 0.0001) {
-            dots.push(
-                `${Math.floor(this.x + (vector.x - this.x) * t)};${Math.floor(
-                    this.y + (vector.y - this.y) * t,
-                )}`,
-            )
+            dots.push(`${Math.floor(this.x + (vector.x - this.x) * t)};${Math.floor(this.y + (vector.y - this.y) * t)}`)
         }
         return [...new Set(dots)]
     }
 
     public lineLength(vector: Vec2D): number {
         return Math.floor(
-            Math.sqrt(
-                Math.pow(Math.abs(this.x - vector.x), 2) +
-                    Math.pow(Math.abs(this.y - vector.y), 2),
-            ),
+            Math.sqrt(Math.pow(Math.abs(this.x - vector.x), 2) + Math.pow(Math.abs(this.y - vector.y), 2))
         )
     }
 
     public circle(radius: number): string[] {
         const dots = []
         for (let t = 0; t < 2 * Math.PI; t += 0.0001) {
-            dots.push(
-                `${Math.floor(this.x + radius * Math.cos(t))};${Math.floor(
-                    this.y + radius * Math.sin(t),
-                )}`,
-            )
+            dots.push(`${Math.floor(this.x + radius * Math.cos(t))};${Math.floor(this.y + radius * Math.sin(t))}`)
         }
         return [...new Set(dots)]
     }
 
-    public rotateCircle(
-        objects: Vec2D[],
-        clockSide: boolean,
-        tick: number,
-        speed: number,
-    ): Vec2D[] {
+    public rotateCircle(objects: Vec2D[], clockSide: boolean, tick: number, speed: number): Vec2D[] {
         const newObjects = []
         for (const object of objects) {
-            const angle = Math.acos(
-                (this.x - object.x) / this.lineLength(object),
-            )
+            const angle = Math.acos((this.x - object.x) / this.lineLength(object))
             newObjects.push(
                 new Vec2D(
                     this.x +
-                        Math.floor(
-                            this.lineLength(object) *
-                                Math.cos(angle + tick / speed),
-                        ) *
-                            (clockSide ? -1 : 1),
-                    this.y +
-                        Math.floor(
-                            this.lineLength(object) *
-                                Math.sin(angle + tick / speed),
-                        ),
-                ),
+                        Math.floor(this.lineLength(object) * Math.cos(angle + tick / speed)) * (clockSide ? -1 : 1),
+                    this.y + Math.floor(this.lineLength(object) * Math.sin(angle + tick / speed))
+                )
             )
         }
         return newObjects
@@ -242,37 +202,34 @@ export const objectsRender = (tick: number, isMobile: boolean) => {
     const sizeMultiplier = isMobile ? 2 : 1
     const sunCentre = new Vec2D(0, 0)
     const planets = {
-        mercuryCentre: new Vec2D(Math.floor((45 + 4)/sizeMultiplier), 0),
-        venusCentre: new Vec2D(Math.floor((45 + 8)/sizeMultiplier), 0),
-        earthCentre: new Vec2D(Math.floor((45 + 11)/sizeMultiplier), 0),
-        marsCentre: new Vec2D(Math.floor((45 + 17)/sizeMultiplier), 0),
-        jupiterCentre: new Vec2D(Math.floor((45 + 57)/sizeMultiplier), 0),
-        saturnCentre: new Vec2D(Math.floor((45 + 105)/sizeMultiplier), 0),
-        uranusCentre: new Vec2D(Math.floor((45 + 211)/sizeMultiplier), 0),
-        neptuneCentre: new Vec2D(Math.floor((45 + 300)/sizeMultiplier), 0)
+        mercuryCentre: new Vec2D(Math.floor((45 + 4) / sizeMultiplier), 0),
+        venusCentre: new Vec2D(Math.floor((45 + 8) / sizeMultiplier), 0),
+        earthCentre: new Vec2D(Math.floor((45 + 11) / sizeMultiplier), 0),
+        marsCentre: new Vec2D(Math.floor((45 + 17) / sizeMultiplier), 0),
+        jupiterCentre: new Vec2D(Math.floor((45 + 57) / sizeMultiplier), 0),
+        saturnCentre: new Vec2D(Math.floor((45 + 105) / sizeMultiplier), 0),
+        uranusCentre: new Vec2D(Math.floor((45 + 211) / sizeMultiplier), 0),
+        neptuneCentre: new Vec2D(Math.floor((45 + 300) / sizeMultiplier), 0)
     }
     const speedMultiply = [0.24, 0.61, 1, 1.88, 11.86, 29.46, 84.01, 164.79]
-    for (const [index, planet] of Array.from(
-        Object.keys(planets).entries(),
-    )) {
-        ;(planets as Record<string, Vec2D>)[planet] =
-            sunCentre.rotateCircle(
-                [(planets as Record<string, Vec2D>)[planet]],
-                true,
-                tick,
-                speedMultiply[index] * 10,
-            )[0]
+    for (const [index, planet] of Array.from(Object.keys(planets).entries())) {
+        ;(planets as Record<string, Vec2D>)[planet] = sunCentre.rotateCircle(
+            [(planets as Record<string, Vec2D>)[planet]],
+            true,
+            tick,
+            speedMultiply[index] * 10
+        )[0]
     }
     const dots = [
-        sunCentre.circle(45/sizeMultiplier),
-        planets.mercuryCentre.circle(0.38/sizeMultiplier),
-        planets.venusCentre.circle(0.94/sizeMultiplier),
-        planets.earthCentre.circle(1/sizeMultiplier),
-        planets.marsCentre.circle(0.53/sizeMultiplier),
-        planets.jupiterCentre.circle(11.21/sizeMultiplier),
-        planets.saturnCentre.circle(9.41/sizeMultiplier),
-        planets.uranusCentre.circle(3.98/sizeMultiplier),
-        planets.neptuneCentre.circle(3.81/sizeMultiplier)
+        sunCentre.circle(45 / sizeMultiplier),
+        planets.mercuryCentre.circle(0.38 / sizeMultiplier),
+        planets.venusCentre.circle(0.94 / sizeMultiplier),
+        planets.earthCentre.circle(1 / sizeMultiplier),
+        planets.marsCentre.circle(0.53 / sizeMultiplier),
+        planets.jupiterCentre.circle(11.21 / sizeMultiplier),
+        planets.saturnCentre.circle(9.41 / sizeMultiplier),
+        planets.uranusCentre.circle(3.98 / sizeMultiplier),
+        planets.neptuneCentre.circle(3.81 / sizeMultiplier)
     ]
     return dots
 }

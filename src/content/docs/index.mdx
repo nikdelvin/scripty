@@ -3,33 +3,39 @@ title: Welcome to Scripty
 description: Get started building your docs site with Scripty.
 template: splash
 hero:
-  title: |
-    Welcome to
-    <span
-      class="font-black text-transparent
-        bg-clip-text bg-gradient-to-b
-        from-accent-700 to-accent-400
-        dark:from-accent-500 dark:to-accent-200"
-    >
-      Scripty
-    </span>
-  tagline: Congrats on setting up a new Scripty project!
-  actions:
-    - text: Example Guide
-      link: /guides/example/
-      icon: right-arrow
+    title: |
+        Welcome to
+        <span
+          class="font-black text-transparent
+            bg-clip-text bg-gradient-to-b
+            from-accent-700 to-accent-400
+            dark:from-accent-500 dark:to-accent-200"
+        >
+          Scripty
+        </span>
+    tagline: Congrats on setting up a new Scripty project!
+    actions:
+        - text: Example Guide
+          link: /guides/example/
+          icon: right-arrow
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components'
 import Canvas from '../../components/ASCIIRenderer/Canvas'
+import Map from '../../components/OpenTopoData/Map'
+import Game from '../../components/PixelGame/Game'
 import { objectsRender } from '../../components/ASCIIRenderer/utils'
 
-<div class="container md:max-w-[720px] max-w-[360px] mx-auto">
-  <Tabs>
-    <TabItem label="ASCII Renderer">
-      <Canvas client:only="solid-js"/>
-    </TabItem>
-    <TabItem label="Elevation Map Renderer">
-    </TabItem>
-  </Tabs>
+<div class="container mx-auto max-w-[360px] md:max-w-[720px]">
+    <Tabs>
+        <TabItem label="ASCII Renderer">
+            <Canvas client:only="solid-js" />
+        </TabItem>
+        <TabItem label="Elevation Map">
+            <Map client:only="solid-js" />
+        </TabItem>
+        <TabItem label="2D Pixel Game">
+            <Game client:only="solid-js" />
+        </TabItem>
+    </Tabs>
 </div>

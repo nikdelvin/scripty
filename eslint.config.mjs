@@ -1,5 +1,6 @@
 import { defineConfig } from 'eslint/config'
 import parser from 'astro-eslint-parser'
+import tsParser from '@typescript-eslint/parser'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import js from '@eslint/js'
@@ -36,6 +37,33 @@ export default defineConfig([
             }
         },
 
+        rules: {}
+    },
+    {
+        files: ['**/*.ts'],
+        languageOptions: {
+            ecmaVersion: 2024,
+            sourceType: 'module',
+            parser: tsParser,
+            parserOptions: {
+                project: ['./tsconfig.json']
+            }
+        },
+        rules: {}
+    },
+    {
+        files: ['**/*.tsx'],
+        languageOptions: {
+            ecmaVersion: 2024,
+            sourceType: 'module',
+            parser: tsParser,
+            parserOptions: {
+                ecmaFeatures: {
+                    jsx: true
+                },
+                project: ['./tsconfig.json']
+            }
+        },
         rules: {}
     }
 ])

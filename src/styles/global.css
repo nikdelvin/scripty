@@ -5,7 +5,7 @@
 @import 'tailwindcss/utilities.css' layer(utilities);
 
 @theme {
-	/*
+    /*
 	Configure your Tailwind theme that will be used by Starlight.
 	https://starlight.astro.build/guides/css-and-tailwind/#styling-starlight-with-tailwind
 	*/
@@ -17,7 +17,35 @@ https://tailwindcss.com/docs/adding-custom-styles#using-custom-css
 */
 
 @layer components {
-	.card {
-		@apply rounded-md
-	}
+    .card {
+        @apply rounded-md;
+    }
+}
+
+body {
+    --tab-switcher-border-width: 1px;
+    --tab-switcher-padding: calc(0.25rem - var(--tab-switcher-border-width));
+    --tab-item-border-radius: 0.5rem;
+    --tab-switcher-border-radius: calc(
+        var(--tab-item-border-radius) + var(--tab-switcher-padding) + var(--tab-switcher-border-width)
+    );
+    --tab-switcher-border-color: var(--sl-color-hairline-light);
+    --tab-switcher-text-color--active: var(--sl-color-white);
+    --tab-switcher-icon-color--active: var(--sl-color-text-accent);
+    --tab-switcher-text-color: var(--sl-color-gray-2);
+    --tab-switcher-icon-color: var(--sl-color-gray-3);
+    --tab-switcher-background-color: var(--sl-color-black);
+    --tab-item-background-color--hover: var(--sl-color-gray-6);
+    --tab-item-background-color--active: var(--sl-color-gray-6);
+    --sl-line-height-headings: 1.2;
+}
+
+@media screen and (max-width: 768px) {
+    ul[role='tablist'],
+    .tab-link {
+        font-size: small;
+    }
+    a[role='tab'] {
+        padding: 0 0.5rem;
+    }
 }

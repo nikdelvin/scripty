@@ -1,0 +1,42 @@
+.tab-list.tabbed-sidebar {
+    list-style-type: none;
+    color: var(--sl-color-text);
+    border: var(--tab-switcher-border-width) solid var(--tab-switcher-border-color);
+    border-radius: var(--tab-switcher-border-radius);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: var(--tab-switcher-padding);
+    background-color: var(--tab-switcher-background-color);
+    margin-bottom: 1.5rem;
+    height: fit-content;
+}
+.tab-list.tabbed-sidebar .tab-item {
+    box-sizing: border-box;
+    margin: 0;
+}
+.tab-list.tabbed-sidebar .tab-item .tab-link {
+    cursor: pointer;
+    color: var(--sl-color-text);
+    box-sizing: border-box;
+    margin: 0;
+    border: var(--tab-switcher-border-width) solid transparent;
+    border-radius: var(--tab-item-border-radius);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: calc(0.5rem - var(--tab-switcher-border-width));
+    background-clip: padding-box;
+    line-height: var(--sl-line-height-headings);
+    text-decoration: none;
+    font-weight: 600;
+}
+.tab-list.tabbed-sidebar .tab-item a[aria-selected='true'].tab-link {
+    border-color: var(--tab-switcher-border-color);
+    color: var(--tab-switcher-text-color--active);
+    background-color: var(--tab-item-background-color--active);
+}
+.tab-list.tabbed-sidebar .tab-item .tab-link:hover {
+    color: var(--tab-switcher-text-color--active);
+    background-color: var(--tab-item-background-color--hover);
+}

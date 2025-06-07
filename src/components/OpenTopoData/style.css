@@ -1,0 +1,18 @@
+.canvas-card {
+    border: var(--tab-switcher-border-width) solid var(--tab-switcher-border-color);
+    border-radius: calc(var(--tab-switcher-border-radius) + 4px);
+    display: flex;
+    margin-top: 0;
+    overflow: hidden;
+}
+
+[type='number'] {
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+[type='number']::-webkit-inner-spin-button {
+    pointer-events: auto;
+    opacity: 1;
+}
