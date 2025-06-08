@@ -21,9 +21,9 @@ function emptyState(type: string, isMobile: boolean) {
 
 const Canvas: Component = () => {
     const isMobile = window.innerWidth < 768
-    const [type, setType] = createSignal('2d')
+    const [type, setType] = createSignal('video')
     const [fontSize, setFontSize] = createSignal(1)
-    const [canvas, setCanvas] = createSignal<CanvasState>(emptyState('2d', isMobile))
+    const [canvas, setCanvas] = createSignal<CanvasState>(emptyState('video', isMobile))
 
     createEffect(() => {
         const isScaled = fontSize() > 1

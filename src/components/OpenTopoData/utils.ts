@@ -1,4 +1,4 @@
-import { type TypedArray, fromBlob } from 'geotiff'
+import { type TypedArray, fromUrl } from 'geotiff'
 
 function generateColorRange(levels: number, grayScale: boolean) {
     const colors = []
@@ -33,8 +33,7 @@ function transform(a: number, b: number, M: number[], roundToInt = false): [numb
 }
 
 export async function prepareMap() {
-    const blob = await (await fetch('/media/open-topo-data.tif')).blob()
-    const tiff = await fromBlob(blob)
+    const tiff = await fromUrl('/media/open-topo-data.tif')
     const image = await tiff.getImage()
     console.log(image)
     const rasters = await image.readRasters()

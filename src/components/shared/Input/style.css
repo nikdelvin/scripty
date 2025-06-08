@@ -1,6 +1,7 @@
 .input {
     cursor: pointer;
     color: var(--sl-color-text);
+    background-color: var(--sl-color-gray-6);
     box-sizing: border-box;
     margin: 0;
     border: var(--tab-switcher-border-width) solid transparent;
