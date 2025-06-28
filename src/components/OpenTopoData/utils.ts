@@ -35,7 +35,6 @@ function transform(a: number, b: number, M: number[], roundToInt = false): [numb
 export async function prepareMap() {
     const tiff = await fromUrl('/media/open-topo-data.tif')
     const image = await tiff.getImage()
-    console.log(image)
     const rasters = await image.readRasters()
     const { width, [0]: raster } = rasters
     const { ModelPixelScale, ModelTiepoint } = image.fileDirectory

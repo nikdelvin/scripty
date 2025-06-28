@@ -1,0 +1,938 @@
+---
+title: "H0W_T0: GeoTIFF_Map_Viewer"
+description: A beginner's guide to building a new stunning React project to create a GeoTIFF terrain map viewer.
+---
+import Map from '../../../components/OpenTopoData/Map'
+
+This guide will walk you through setting up a new `React` project to create a `GeoTIFF` terrain map viewer.
+
+## 1. Set up a New React Project
+
+First, you'll need `Node.js` and `npm` (or `pnpm` / `yarn`) installed on your machine. If you don't have them, download them from the source links below:
+* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://nodejs.org) `Node.js` & `npm` from official website
+* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://pnpm.io) `pnpm` from official website
+* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://yarnpkg.com) `yarn` from official website
+
+Open your terminal or command prompt and run the following command to create a new `React` project using `Vite` (a fast build tool often used with `React`):
+```bash
+npm create vite@latest geotiff-map-viewer -- --template react-ts
+```
+* `geotiff-map-viewer`: This specifies your project name.
+* `--template react-ts`: This specifies that you want a `React` project with `TypeScript`.
+
+Navigate into your new project directory:
+```bash
+cd geotiff-map-viewer
+```
+
+Install the necessary dependencies:
+```bash
+npm install
+```
+
+## 2. Install Tailwind CSS
+
+This project uses `Tailwind CSS` for styling. A utility-first `CSS` framework for rapidly building custom user interfaces. You can check `Tailwind` documentation using link below:
+* [![inline](https://img.shields.io/badge/Documentation-c0c9d5)](https://tailwindcss.com/docs) of `Tailwind CSS` from official website
+
+Install it by running:
+```bash
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+This will create `tailwind.config.js` and `postcss.config.js` files in your project root.
+
+### 2.1. Configure Tailwind CSS
+
+Open `tailwind.config.js` and configure the content array to scan all your `React` components for `Tailwind` classes:
+```js
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+Open your main `CSS` file (e.g., `src/index.css` or `src/App.css`) and add the `Tailwind` directives:
+```css
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: Basic body styling for full-screen background */
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #1a202c; /* Dark background */
+  font-family: 'Inter', sans-serif; /* Recommended font */
+}
+
+/* Specific styles for the GeoTIFF map canvas container */
+.canvas-card-map {
+  background-color: black;
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+  padding: 0; /* Canvas fills directly */
+  border: 1px solid #4a5568; /* border-gray-700 */
+  overflow: hidden; /* Ensure canvas corners are rounded */
+  display: flex; /* Use flex to center canvas if it doesn't fill entirely */
+  justify-content: center;
+  align-items: center;
+}
+```
+
+## 3. Create utility Functions and Classes
+
+Create a new folder `src/utils` and recreate same files structure inside the folder using JavaScript code samples provided below.
+
+### 3.1. `prepareMap()` function
+```js
+/* src/utils/prepareMap.ts */
+/**
+ * Asynchronously loads and prepares the GeoTIFF map data.
+ * Fetches the GeoTIFF, extracts the image raster, and calculates the GPS to pixel transformation matrix.
+ * @returns An object containing the raster width, raster data, and the GPS to pixel transformation matrix.
+ */
+export async function prepareMap() {
+    // Ensure GeoTIFF library is loaded before attempting to use it
+    if (typeof window.GeoTIFF === 'undefined' || typeof window.GeoTIFF.fromUrl === 'undefined') {
+        throw new Error('GeoTIFF library is not loaded. Please ensure the CDN script is loaded.');
+    }
+
+    // Using a publicly accessible GeoTIFF from geotiff.js examples.
+    // This file has proper CORS headers.
+    const tiff = await window.GeoTIFF.fromUrl('https://scripty.app.nikdelv.in/media/open-topo-data.tif');
+    const image = await tiff.getImage();
+    const rasters = await image.readRasters();
+    // Destructuring to get width and the first raster band (elevation data)
+    const { width } = image.fileDirectory;
+    const raster = rasters[0] as TypedArray; // Assuming elevation is in the first band
+
+    // Extracting georeferencing information from the GeoTIFF file directory
+    const { ModelPixelScale, ModelTiepoint } = image.fileDirectory;
+    const sx = ModelPixelScale[0]; // Pixel scale in X direction
+    const sy = -ModelPixelScale[1]; // Pixel scale in Y direction (negative because Y increases downwards)
+    const gx = ModelTiepoint[3]; // X coordinate of the tie point in geographic space
+    const gy = ModelTiepoint[4]; // Y coordinate of the tie point in geographic space
+
+    // Calculate the GPS to pixel transformation matrix (affine transformation)
+    // This matrix is used to convert (longitude, latitude) to (pixel_x, pixel_y)
+    const gpsToPixel = [-gx / sx, 1 / sx, 0, -gy / sy, 0, 1 / sy];
+    return { width, raster, gpsToPixel };
+}
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/utils/prepareMap.ts` file:
+* An asynchronous function responsible for loading the GeoTIFF data.
+* It now uses `window.GeoTIFF.fromUrl` to fetch the `.tif` file from a specified URL (`https://scripty.app.nikdelv.in/media/open-topo-data.tif`). This URL is chosen because it provides a public GeoTIFF with proper CORS (Cross-Origin Resource Sharing) headers, which is essential for drawing on canvas from external sources.
+* It extracts the image raster data (elevation values) and georeferencing information (like `ModelPixelScale` and `ModelTiepoint`).
+* It then calculates the `gpsToPixel` transformation matrix, crucial for accurately mapping geographic coordinates to raster pixel locations.
+
+### 3.2. `drawMap(body, map)` function
+```js
+/* src/utils/drawMap.ts */
+import { transform } from './transform'
+import { generateColorRange } from './generateColorRange'
+
+/**
+ * Draws the map on the canvas based on provided parameters.
+ * Calculates elevation data for a grid of geographic coordinates and maps them to colors.
+ * @param body Object containing map parameters like lat, lng, zoom, quality, levels, grayscale, fullMap.
+ * @param map Object containing prepared map data (width, raster, gpsToPixel).
+ * @returns An object with height groups (color-mapped coordinates) and pixel deltas for drawing rectangles.
+ */
+export function drawMap(
+    body: Record<string, number | boolean>,
+    map: { width: number; raster: TypedArray; gpsToPixel: number[] }
+) {
+    const lat = body.lat as number;
+    const lng = body.lng as number;
+    const zoom = body.fullMap ? 1 : (body.zoom as number);
+    const quality = body.quality as number;
+    const fullMap = body.fullMap as boolean;
+    const levels = body.levels as number;
+    const grayScale = body.grayScale as boolean;
+
+    // Define the bounding box for the map view based on zoom and fullMap settings
+    const startPoint: { lat?: number; lng?: number } = {};
+    const endPoint: { lat?: number; lng?: number } = {};
+
+    // For full map, use global bounds (-90 to 90 lat, -180 to 180 lng)
+    // For zoomed view, calculate bounds around the specified lat/lng
+    startPoint.lat = fullMap ? -90 : lat + 106 / Math.pow(10, zoom) / (zoom > 0 ? 2 : 4);
+    startPoint.lng = fullMap ? -180 : lng + 377 / Math.pow(10, zoom) / (zoom > 0 ? 2 : 4);
+    endPoint.lat = fullMap ? 90 : lat - 106 / Math.pow(10, zoom) / (zoom > 0 ? 2 : 4);
+    endPoint.lng = fullMap ? 180 : lng - 377 / Math.pow(10, zoom) / (zoom > 0 ? 2 : 4);
+
+    const coordsMatrix: number[][] = [[], [], []]; // [x_canvas, y_canvas, elevation]
+
+    // Calculate iteration steps based on zoom and quality for geographic grid
+    const iIterSize = Math.abs(Math.round(startPoint.lat * Math.pow(10, zoom) - endPoint.lat * Math.pow(10, zoom)));
+    const jIterSize = Math.abs(Math.round(startPoint.lng * Math.pow(10, zoom) - endPoint.lng * Math.pow(10, zoom)));
+
+    const latStep = fullMap ? 8.5 : 0.5 * (zoom > 0 ? quality : quality / 2);
+    const lngStep = fullMap ? 9.5 : 1 * (zoom > 0 ? quality : quality / 2);
+
+    // Iterate through a grid of geographic coordinates
+    for (let i = 0; i < iIterSize + 1; i += latStep) {
+        for (let j = 0; j < jIterSize + 1; j += lngStep) {
+            const coord: { lat: number; lng: number } = { lat: 0, lng: 0 };
+            // Adjust latitude based on start/end points direction
+            if (startPoint.lat! - endPoint.lat! > 0) coord.lat = (Math.round(startPoint.lat! * Math.pow(10, zoom)) - i) / Math.pow(10, zoom);
+            else coord.lat = (Math.round(startPoint.lat! * Math.pow(10, zoom)) + i) / Math.pow(10, zoom);
+            // Adjust longitude based on start/end points direction
+            if (startPoint.lng! - endPoint.lng! > 0) coord.lng = (Math.round(startPoint.lng! * Math.pow(10, zoom)) - j) / Math.pow(10, zoom);
+            else coord.lng = (Math.round(startPoint.lng! * Math.pow(10, zoom)) + j) / Math.pow(10, zoom);
+
+            // Normalize coordinates to prevent wrap-around issues, though GeoTIFF may handle it.
+            if (coord.lat > 90) coord.lat = -(90 - (coord.lat - 90));
+            if (coord.lat < -90) coord.lat = 90 + (coord.lat + 90);
+            if (coord.lng > 180) coord.lng = -(180 - (coord.lng - 180));
+            if (coord.lng < -180) coord.lng = 180 + (coord.lng + 180);
+
+            // Transform geographic coordinates to raster pixel coordinates
+            const [xRaster, yRaster] = transform(coord.lng, coord.lat, map.gpsToPixel, true);
+
+            // Calculate a conceptual canvas position (0-1920, 0-1080 for display)
+            // These are not direct pixel positions, but normalized for display
+            const xCanvas = (coord.lng + 180) * (1920 / 360); // Scale longitude to 0-1920
+            const yCanvas = (-1 * coord.lat + 90) * (1080 / 180); // Scale latitude to 0-1080 (Y inverted)
+
+            // Get elevation from raster data. Handle potential out-of-bounds access.
+            let elevation = 0;
+            const rasterIndex = xRaster + yRaster * map.width;
+            if (rasterIndex >= 0 && rasterIndex < map.raster.length) {
+                elevation = map.raster[rasterIndex];
+            } else {
+                // Default elevation for out-of-bounds or invalid points (e.g., oceans)
+                elevation = -1000; // A reasonable default for ocean or unknown
+            }
+            
+            coordsMatrix[0].push(xCanvas);
+            coordsMatrix[1].push(yCanvas);
+            coordsMatrix[2].push(elevation);
+        }
+    }
+
+    // Calculate dimensions for drawing rectangles on canvas
+    const uniqueXCoords = Array.from(new Set(coordsMatrix[0]));
+    const uniqueYCoords = Array.from(new Set(coordsMatrix[1]));
+    const countX = uniqueXCoords.length;
+    const countY = uniqueYCoords.length;
+
+    const minX = Math.min(...uniqueXCoords);
+    const diffX = Math.max(...uniqueXCoords) - minX;
+    const minY = Math.min(...uniqueYCoords);
+    const diffY = Math.max(...uniqueYCoords) - minY;
+
+    // Define min/max possible elevation values (approximate global min/max)
+    const minHeight = -10921; // Mariana Trench depth
+    const maxHeight = 8849; // Mount Everest height
+    const diffHeight = maxHeight - minHeight;
+    const heightLevelCap = diffHeight / levels; // Height range per color level
+
+    const colors = generateColorRange(levels + 1, grayScale); // Generate colors for elevation levels
+
+    const heightGroups: Record<string, number[][]> = {}; // Group coordinates by their color
+
+    for (let i = 0; i < coordsMatrix[0].length; i++) {
+        const x = coordsMatrix[0][i];
+        const y = coordsMatrix[1][i];
+        const elevation = coordsMatrix[2][i];
+
+        // Normalize canvas coordinates relative to the current view
+        const resultCoord = [
+            ((x - minX) / diffX) * 1920, // Scale x to canvas width (1920)
+            ((y - minY) / diffY) * 1080, // Scale y to canvas height (1080)
+            elevation
+        ];
+
+        // Assign color based on elevation level
+        for (let lvl = 0; lvl < levels + 1; lvl++) {
+            if (
+                resultCoord[2] >= minHeight + heightLevelCap * lvl &&
+                resultCoord[2] < minHeight + heightLevelCap * (lvl + 1)
+            ) {
+                const color = colors[lvl];
+                if (!heightGroups[color]) {
+                    heightGroups[color] = [];
+                }
+                heightGroups[color].push(resultCoord);
+                break; // Found the level, move to next coordinate
+            }
+        }
+    }
+    // Calculate pixel dimensions for each rectangle to be drawn on the canvas
+    const deltaX = diffX > 0 ? 1920 / countX : 0;
+    const deltaY = diffY > 0 ? 1080 / countY : 0;
+
+    return { heightGroups, deltaX, deltaY };
+}
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/utils/drawMap.ts` file:
+* This function handles the core logic of drawing the map onto the canvas.
+* It takes `body` (containing user settings like `lat`, `lng`, `zoom`, `quality`, `levels`, `grayScale`, `fullMap`) and the `map` data (from `prepareMap`).
+* It defines a grid of geographic coordinates based on the current view (`fullMap` or zoomed to a `selectedPoint`).
+* For each coordinate in the grid, it:
+    * Transforms the geographic coordinate to a raster pixel coordinate using `map.gpsToPixel`.
+    * Fetches the elevation value from the `map.raster` at that pixel.
+    * Maps the elevation to a specific color generated by `generateColorRange`.
+    * Groups coordinates by their assigned color.
+* Finally, it calculates `deltaX` and `deltaY`, which are the width and height of the individual rectangles (pixels) to be drawn on the HTML canvas to represent the elevation data.
+
+### 3.3. `transform(a, b, M, roundToInt)` function
+```js
+/* src/utils/transform.ts */
+/**
+ * Transforms a geographic coordinate (longitude, latitude) into a pixel coordinate on the raster image.
+ * Uses a transformation matrix (M) to perform the affine transformation.
+ * @param a Longitude.
+ * @param b Latitude.
+ * @param M The transformation matrix [M0, M1, M2, M3, M4, M5].
+ * @param roundToInt True to round coordinates to integers (for pixel indices).
+ * @returns A tuple [x, y] representing the transformed coordinates.
+ */
+export function transform(a: number, b: number, M: number[], roundToInt = false): [number, number] {
+    const round = (v: number) => (roundToInt ? Math.floor(v) : v); // Using Math.floor for integer rounding
+    return [round(M[0] + M[1] * a + M[2] * b), round(M[3] + M[4] * a + M[5] * b)];
+}
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/utils/transform.ts` file:
+* A utility function that performs an affine transformation.
+* It takes geographic coordinates (`a` for longitude, `b` for latitude) and a transformation matrix `M` (obtained from the GeoTIFF metadata) to convert them into pixel coordinates on the raster image.
+* `roundToInt` ensures the output coordinates are integers, suitable for pixel indexing.
+
+### 3.4. `generateColorRange(levels, grayScale)` function
+```js
+/* src/utils/generateColorRange.ts */
+/**
+ * Generates a range of colors based on the number of levels and grayscale preference.
+ * Creates a gradient from red (low) to green (mid) to blue (high) or a grayscale gradient.
+ * @param levels The number of color levels to generate.
+ * @param grayScale True to generate grayscale, false for color gradient.
+ * @returns An array of CSS color strings (e.g., 'rgb(255,0,0)').
+ */
+export function generateColorRange(levels: number, grayScale: boolean): string[] {
+    const colors: string[] = [];
+    const maxColor = 255;
+    const colorCap = maxColor / levels;
+
+    for (let lvl = 0; lvl < levels; lvl++) {
+        const currentColor = lvl * colorCap;
+        let r = 0, g = 0, b = 0;
+
+        // Custom color logic: Red -> Green -> Blue transition
+        if (currentColor >= 0 && currentColor <= 128) {
+            g = currentColor / 128; // Green increases from 0 to 1
+            r = 1 - g; // Red decreases from 1 to 0
+            b = 0;
+        } else if (currentColor > 128 && currentColor <= 255) {
+            b = (currentColor - 127) / 128; // Blue increases from 0 to 1
+            g = 1 - b; // Green decreases from 1 to 0
+            r = 0;
+        }
+
+        if (grayScale) {
+            colors.push(`rgb(${Math.round(currentColor)},${Math.round(currentColor)},${Math.round(currentColor)})`);
+        } else {
+            // Convert normalized (0-1) RGB values to 0-255 range
+            colors.push(`rgb(${Math.round(r * 255)},${Math.round(g * 255)},${Math.round(b * 255)})`);
+        }
+    }
+    // Reverse colors for color mode to match typical elevation (green-low, red-mid, blue-high)
+    return grayScale ? colors : colors.reverse();
+}
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/utils/generateColorRange.ts` file:
+* This function dynamically creates an array of CSS `rgb()` color strings.
+* It can generate a gradient of colors (transitioning from red to green to blue, representing low to high elevation) or a simple grayscale gradient, based on the `grayScale` parameter.
+* The `levels` parameter controls the granularity of the color steps.
+
+### 3.5. `utils.ts` main export file
+```js
+/* src/utils/utils.ts */
+import { prepareMap } from './prepareMap'
+import { drawMap } from './drawMap'
+
+export { prepareMap, drawMap }
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/utils/utils.ts` file:
+* The primary purpose of this file is to act as a central hub for all utility functions for our project. It imports functions from other files within the same `/utils` directory and then exports them all from this single file.
+
+## 4. Add the `Tablist` React Component
+
+Create a new file `src/components/Tablist.tsx` and paste the entire React code provided below into it.
+```js
+/* src/components/Tablist.tsx */
+/**
+ * A flexible Tablist component that can render buttons or child components.
+ * @param props.list An array of tab/item objects.
+ * @param props.className Additional CSS classes for the container.
+ */
+const Tablist: React.FC<{ list: { label?: string; active?: boolean; onClick?: () => void; child?: React.ReactNode }[]; className?: string }> = ({ list, className = '' }) => (
+    <div className={`flex flex-col rounded-md bg-gray-700 p-1 space-y-1 ${className}`}>
+        {list.map((item, index) => {
+            if (item.child) {
+                // Render as a div for items with children (like inputs/buttons)
+                return (
+                    <div key={index} className="flex flex-col p-2 bg-gray-800 rounded-md shadow-inner text-gray-200">
+                        {item.label && <span className="mb-1 text-xs font-semibold">{item.label}</span>}
+                        {item.child}
+                    </div>
+                );
+            } else {
+                // Render as a button for regular tabs
+                return (
+                    <button
+                        key={index}
+                        onClick={item.onClick}
+                        className={`px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 w-full text-left
+                            ${item.active ? 'bg-blue-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-600 hover:text-white'}`}
+                    >
+                        {item.label}
+                    </button>
+                );
+            }
+        })}
+    </div>
+);
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/components/Tablist.tsx` file:
+* A simple, reusable React component for creating navigation tabs. It takes a list of tab configurations (`label`, `active` status, `onClick` handler) and renders them as buttons, or taking `child` param and renders it as a child.
+
+## 5. Add the `Input` React Component
+
+Create a new file `src/components/Input.tsx` and paste the entire React code provided below into it.
+```js
+/* src/components/Input.tsx */
+/**
+ * A generic Input component.
+ * @param props.onChange Event handler for input change.
+ * @param props.value Current value of the input.
+ * @param props.type Type of the input (e.g., 'number').
+ * @param props.min Minimum value.
+ * @param props.max Maximum value.
+ * @param props.className Additional CSS classes.
+ */
+const Input: React.FC<{ onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; value: number; type: string; min: string; max: string; className?: string }> = ({ onChange, value, type, min, max, className = '' }) => (
+    <input
+        type={type}
+        onChange={onChange}
+        value={value}
+        min={min}
+        max={max}
+        className={`bg-gray-900 text-white border border-gray-600 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full ${className}`}
+    />
+);
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/components/Input.tsx` file:
+* A simple, reusable React component for creating input fields. It takes a list of `<input/>` tag params and implementing it in stylized input filed.
+
+## 6. Add the `Button` React Component
+
+Create a new file `src/components/Button.tsx` and paste the entire React code provided below into it.
+```js
+/* src/components/Button.tsx */
+/**
+ * A generic Button component.
+ * @param props.onClick Event handler for button click.
+ * @param props.title Text displayed on the button.
+ * @param props.className Additional CSS classes.
+ */
+const Button: React.FC<{ onClick: (e: React.MouseEvent<HTMLButtonElement>) => void; title: string; className?: string }> = ({ onClick, title, className = '' }) => (
+    <button
+        onClick={onClick}
+        className={`bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200 text-center ${className}`}
+    >
+        {title}
+    </button>
+);
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/components/Button.tsx` file:
+* A simple, reusable React component for creating buttons. It takes a list of `<button/>` tag params and implementing it in stylized button.
+
+## 7. Add the `Map` React Component
+
+Create a new file `src/Map.tsx` and paste the entire React code provided below into it.
+```js
+/* src/Map.tsx */
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Tablist } from './components/Tablist'
+import { Input } from './components/Input'
+import { Button } from './components/Button'
+import { prepareMap, drawMap } from './utils/utils'
+
+// Declare global GeoTIFF and TypedArray types if they are loaded via script tags.
+// This helps TypeScript recognize them even without a direct import.
+declare global {
+    interface Window {
+        GeoTIFF: any; // GeoTIFF library exposed globally
+    }
+    type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
+}
+
+// Define specific geographic points
+type Points = 'Null Island' | 'Everest' | 'Mariana Trench';
+
+interface Circle {
+    center: { x: number; y: number };
+    radius: number;
+    speed: number;
+}
+
+// Interpolator functions for loading animation
+function accelerateInterpolator(x: number) {
+    return x * x;
+}
+function decelerateInterpolator(x: number) {
+    return 1 - (1 - x) * (1 - x);
+}
+
+const Map: React.FC = () => {
+    // State to determine if the device is mobile, updated on resize
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    // Ref for direct access to the canvas DOM element
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    // State to track if the GeoTIFF script has been loaded
+    const [isGeoTIFFLoaded, setIsGeoTIFFLoaded] = useState(false);
+
+    // Defined geographic points for quick selection
+    const points: Record<Points, [number, number]> = {
+        'Null Island': [0, 0], // (0,0) latitude/longitude
+        Everest: [27.988093, 86.924972], // Mount Everest coordinates
+        'Mariana Trench': [11.346521, 142.197337] // Mariana Trench coordinates
+    };
+
+    // State for the prepared map data (GeoTIFF raster and transformation matrix)
+    const [map, setMap] = useState<{ width: number; raster: TypedArray; gpsToPixel: number[] } | undefined>(undefined);
+    // State for the currently selected geographic point
+    const [selectedPoint, setSelectedPoint] = useState<Points | null>(null);
+    // State to toggle between full map view and zoomed-in view
+    const [fullMap, setFullMap] = useState(true);
+    // Individual settings for zoom, quality, levels (these are intermediate values before applying)
+    const [zoom, setZoom] = useState(1);
+    const [quality, setQuality] = useState(1);
+    const [levels, setLevels] = useState(100);
+    // Applied settings state (used to trigger map redraw)
+    const [settings, setSettings] = useState({
+        zoom: 1,
+        quality: 1,
+        levels: 100,
+        grayScale: false
+    });
+
+    // Effect to update isMobile state on window resize
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize); // Cleanup listener
+    }, []);
+
+    // Effect to dynamically load the geotiff.js script from CDN
+    useEffect(() => {
+        if (isGeoTIFFLoaded || typeof window.GeoTIFF !== 'undefined') {
+            setIsGeoTIFFLoaded(true);
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/geotiff@2.0.7/dist/geotiff.js'; // CDN URL for geotiff.js
+        script.async = true; // Load asynchronously
+
+        const handleScriptLoad = () => {
+            console.log('GeoTIFF script loaded successfully!');
+            setIsGeoTIFFLoaded(true);
+        };
+
+        const handleScriptError = (error: Event | string) => {
+            console.error('Failed to load GeoTIFF script:', error);
+            // Optionally, handle error state for the user
+        };
+
+        script.addEventListener('load', handleScriptLoad);
+        script.addEventListener('error', handleScriptError);
+
+        document.body.appendChild(script);
+
+        return () => {
+            // Cleanup: remove the script if the component unmounts
+            script.removeEventListener('load', handleScriptLoad);
+            script.removeEventListener('error', handleScriptError);
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, [isGeoTIFFLoaded]); // Run this effect once, or if isGeoTIFFLoaded changes unexpectedly
+
+
+    // Effect to load the GeoTIFF map data once on component mount, or when GeoTIFF library is loaded
+    useEffect(() => {
+        // Only attempt to load map if GeoTIFF library is confirmed loaded
+        if (!isGeoTIFFLoaded) {
+            return;
+        }
+
+        const loadMap = async () => {
+            try {
+                const currentMap = await prepareMap();
+                setMap(currentMap);
+            } catch (error) {
+                console.error("Failed to load map data:", error);
+                // Handle error (e.g., display an error message on UI)
+                setMap(undefined); // Reset map state on error
+            }
+        };
+        loadMap();
+    }, [isGeoTIFFLoaded]); // Rerun this effect when geotiff library loading state changes
+
+    // Effect to draw on the canvas when map data or settings change
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return; // Ensure canvas element is available
+        const context = canvas.getContext('2d');
+        if (!context) return; // Ensure 2D context is available
+
+        let animationFrameId: number; // To store requestAnimationFrame ID for cleanup
+
+        // Function to draw the loading circles
+        const drawCircle = (circle: Circle, progress: number) => {
+            context.beginPath();
+            // Interpolate start and end angles for the arc
+            var start = accelerateInterpolator(progress) * circle.speed;
+            var end = decelerateInterpolator(progress) * circle.speed;
+            context.arc(
+                circle.center.x,
+                circle.center.y,
+                circle.radius,
+                (start - 0.5) * Math.PI,
+                (end - 0.5) * Math.PI
+            );
+            context.lineWidth = 3;
+            context.fillStyle = '#18181b'; // Dark background for loading circles
+            context.strokeStyle = '#ffffff'; // White stroke
+            context.fill();
+            context.stroke();
+        };
+
+        // Loading animation loop
+        let progress = 0;
+        const loadingAnimation = () => {
+            if (map === undefined) { // Check if map data is still undefined
+                context.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+                progress += 0.01;
+                if (progress > 1) {
+                    progress = 0; // Reset progress
+                }
+                // Define parameters for loading circles
+                var bigCircle = { center: { x: 960, y: 540 }, radius: 250, speed: 4 };
+                var smallCirlce = { center: { x: 960, y: 540 }, radius: 150, speed: 2 };
+                drawCircle(bigCircle, progress);
+                drawCircle(smallCirlce, progress);
+                animationFrameId = requestAnimationFrame(loadingAnimation); // Continue animation
+            }
+        };
+
+        if (map == null) {
+            // If map data is not yet loaded, start loading animation
+            loadingAnimation();
+        } else {
+            // If map data is loaded, cancel any ongoing animation and draw the map
+            cancelAnimationFrame(animationFrameId); // Stop loading animation
+            context.fillStyle = '#ffffff'; // Fill background white before drawing map
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            const body = {
+                lat: selectedPoint ? points[selectedPoint][0] : points['Null Island'][0], // Use selected point or Null Island
+                lng: selectedPoint ? points[selectedPoint][1] : points['Null Island'][1],
+                zoom: settings.zoom,
+                quality: settings.quality,
+                levels: settings.levels,
+                grayScale: settings.grayScale,
+                fullMap: fullMap
+            };
+            try {
+                const payload = drawMap(body, map);
+                // Iterate through height groups and draw rectangles
+                for (const [color, group] of Object.entries(payload.heightGroups)) {
+                    context.fillStyle = color; // Set fill style to the determined color
+                    for (const coord of group) {
+                        // Draw a rectangle for each coordinate block
+                        context.fillRect(coord[0], coord[1], payload.deltaX, payload.deltaY);
+                    }
+                }
+            } catch (error) {
+                console.error("Error drawing map:", error);
+                // Display an error message on the canvas if map drawing fails
+                context.fillStyle = 'red';
+                context.font = '24px Arial';
+                context.fillText('Error drawing map. See console.', 10, 50);
+            }
+        }
+
+        // Cleanup function for useEffect: cancels any pending animation frame
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, [map, settings, selectedPoint, fullMap, isMobile]); // Dependencies that trigger this effect
+
+    return (
+        <div className="relative overflow-hidden flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-row items-start space-x-4 z-10">
+                <Tablist
+                    className="mb-1"
+                    list={Object.keys(points)
+                        .map((p) => ({
+                            label: p,
+                            active: selectedPoint === p,
+                            onClick: () => {
+                                setSelectedPoint(p as Points);
+                                setFullMap(false);
+                            }
+                        }))
+                        .concat([
+                            {
+                                label: 'Full Map',
+                                active: fullMap,
+                                onClick: () => {
+                                    setFullMap(true);
+                                    setSelectedPoint(null); // Clear selected point for full map
+                                }
+                            }
+                        ])}
+                />
+                {!isMobile && (
+                    <Tablist
+                        className="mt-0"
+                        list={
+                            fullMap
+                                ? [
+                                      {
+                                          label: 'Color Levels',
+                                          child: (
+                                              <Input
+                                                  onChange={(e) => {
+                                                      setLevels(Number(e.target.value));
+                                                  }}
+                                                  value={levels}
+                                                  type="number"
+                                                  min="2"
+                                                  max="100"
+                                                  className="w-[70px]"
+                                              />
+                                          )
+                                      },
+                                      {
+                                          child: (
+                                              <Button
+                                                  onClick={() => {
+                                                      setSettings({
+                                                          zoom: zoom,
+                                                          quality: quality,
+                                                          levels: levels,
+                                                          grayScale: false // Always false for full map in original logic
+                                                      });
+                                                  }}
+                                                  title="Apply Settings"
+                                                  className="w-full justify-center"
+                                              />
+                                          )
+                                      }
+                                  ]
+                                : [
+                                      {
+                                          label: 'Zoom',
+                                          child: (
+                                              <Input
+                                                  onChange={(e) => {
+                                                      setZoom(Number(e.target.value));
+                                                  }}
+                                                  value={zoom}
+                                                  type="number"
+                                                  min="0"
+                                                  max="1"
+                                                  className="w-[70px]"
+                                              />
+                                          )
+                                      },
+                                      {
+                                          label: 'Quality',
+                                          child: (
+                                              <Input
+                                                  onChange={(e) => {
+                                                      setQuality(Number(e.target.value));
+                                                  }}
+                                                  value={quality}
+                                                  type="number"
+                                                  min="1"
+                                                  max="6"
+                                                  className="w-[70px]"
+                                              />
+                                          )
+                                      },
+                                      {
+                                          label: 'Color Levels',
+                                          child: (
+                                              <Input
+                                                  onChange={(e) => {
+                                                      setLevels(Number(e.target.value));
+                                                  }}
+                                                  value={levels}
+                                                  type="number"
+                                                  min="2"
+                                                  max="100"
+                                                  className="w-[70px]"
+                                              />
+                                          )
+                                      },
+                                      {
+                                          child: (
+                                              <Button
+                                                  onClick={() => {
+                                                      setSettings({
+                                                          zoom: zoom,
+                                                          quality: quality,
+                                                          levels: levels,
+                                                          grayScale: false
+                                                      });
+                                                  }}
+                                                  title="Apply Settings"
+                                                  className="w-full justify-center"
+                                              />
+                                          )
+                                      }
+                                  ]
+                        }
+                    />
+                )}
+            </div>
+            <div className="canvas-card-map flex-grow flex items-center justify-center p-4">
+                <canvas
+                    ref={canvasRef} // Assign the ref to the canvas element
+                    className={isMobile ? `h-[203px] w-[360px]` : `h-[405px] w-[720px]`}
+                    width={1920} // Internal resolution of the canvas drawing buffer
+                    height={1080}
+                />
+            </div>
+        </div>
+    );
+};
+
+export default Map;
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/Map.tsx` file:
+* `useState` Hooks:
+    * `isMobile`: Detects mobile screen size for responsive layout adjustments.
+    * `canvasRef`: A `useRef` hook to get a direct reference to the `<canvas/>` DOM element, allowing direct drawing operations.
+    * `isGeoTIFFLoaded`: A new state to track the loading status of the `geotiff.js` script.
+    * Dynamic `GeoTIFF` Loading:
+        * Instead of a direct `import` statement, the `geotiff.js` library is now loaded dynamically via a `<script/>` tag from a CDN within a `useEffect` hook in the `Map` component.
+        * A `isGeoTIFFLoaded` state variable tracks when the script has finished loading, ensuring that `prepareMap` (which relies on `window.GeoTIFF`) is only called once the library is available.
+        * The global `GeoTIFF` object and `TypedArray` type are declared to assist TypeScript with recognition.
+    * `map`: Stores the loaded `GeoTIFF` data (initially `undefined`).
+    * `selectedPoint`: Keeps track of the currently selected geographic point (e.g., 'Everest', 'Mariana Trench').
+    * `fullMap`: A boolean to toggle between a global map view and a zoomed-in view.
+    * `zoom`, `quality`, `levels`: Individual state variables for user input on map settings.
+    * `settings`: An object that holds the applied settings. This is separate from the individual zoom, quality, levels states to allow users to adjust settings and then click "Apply Settings" to redraw the map.
+* `useEffect` Hooks:
+    * The first `useEffect` (handle resize): Updates `isMobile` state whenever the browser window is resized.
+    * The second `useEffect` (dynamic script loading): Responsible for creating and appending the `<script/>` tag for `geotiff.js` to the document body. It updates `isGeoTIFFLoaded` once the script loads.
+    * The third `useEffect` (load map): Runs when `isGeoTIFFLoaded` changes to `true` to asynchronously load the GeoTIFF data using `prepareMap()`.
+    * The fourth, most crucial `useEffect` (drawing logic):
+        * This effect is triggered whenever `map`, `settings`, `selectedPoint`, `fullMap`, or `isMobile` changes.
+        * It gets the 2D rendering context from `canvasRef.current`.
+        * **Loading Animation**: If `map` data is `null` (not yet loaded), it initiates a `requestAnimationFrame` loop to draw a dynamic loading circle animation on the canvas. This provides visual feedback to the user while the `GeoTIFF` data is being fetched and processed.
+        * **Drawing Map**: Once `map` data is available, it cancels any ongoing loading animation, clears the canvas, and then calls `drawMap()` with the current settings and map data. It then iterates through the `heightGroups` returned by `drawMap` and draws colored rectangles on the canvas to represent the elevation.
+        * **Cleanup**: The `return` function within this `useEffect` ensures that any ongoing `requestAnimationFrame` loop (for the loading animation) is cancelled when the component unmounts or its dependencies change, preventing memory leaks.
+* JSX Structure:
+    * Renders `Tablist` components for selecting predefined geographic points and the "Full Map" view.
+    * Renders another `Tablist` for map settings (Zoom, Quality, Color Levels) which includes `Input` and `Button` components. These settings are only visible when `isMobile` is false.
+    * The main visual output is handled by the `<canvas/>` element, whose `ref` is set to `canvasRef`. The `width` and `height` attributes define its internal resolution, while the `className` applies CSS for its displayed size and responsiveness.
+
+## 8. Update `src/App.tsx`
+
+Modify `src/App.tsx` to render your Map component:
+```js
+// src/App.tsx
+import React from 'react';
+import Map from './Map'; // Import your Map component
+import './index.css'; // Ensure your Tailwind CSS is imported
+
+function App() {
+  return (
+    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4">
+      <Map />
+    </div>
+  );
+}
+
+export default App;
+```
+
+## 9. Run Your Application
+
+Start the development server:
+```bash
+npm run dev
+```
+Open your web browser and navigate to the address shown in your terminal (usually http://localhost:5173). You should see your `GeoTIFF` map application running! It might show a loading animation initially while the `GeoTIFF` data is being fetched.
+
+## Understanding the project purpose
+
+This application demonstrates a powerful concept: visualizing complex geographical data (GeoTIFFs) directly in a web browser using client-side JavaScript. It showcases how to:
+* Load and parse specialized file formats (`.tif`) using external libraries.
+* Perform complex data transformations (geographic coordinates to pixel coordinates).
+* Render dynamic graphics on an HTML `<canvas/>` element.
+* Implement interactive controls to explore the data.
+* Handle asynchronous operations and provide visual loading feedback.
+* This project serves as an excellent foundation for more advanced geospatial web applications.
+
+## Next Steps
+
+* **Custom GeoTIFF**: While the `geotiff.js` CDN provides the necessary library, you might still want to load your own GeoTIFF file. If you use a local file, ensure it's placed in the `public` folder of your Vite project, and reference it like `/open-topo-data.tif`. If it's hosted on a different server, make sure that server has proper CORS headers configured.
+* **Interactive Controls**: Implement interactive controls directly on the map, such as:
+    * **Pan/Drag**: Allow users to drag the map to pan around.
+    * **Zoom In/Out**: Implement zoom functionality using mouse scroll or dedicated buttons.
+    * **Click to Get Elevation**: Display the elevation at a clicked point on the map.
+* **Performance Optimization**: For very large GeoTIFF files, consider:
+    * **Web Workers**: Offload the `drawMap` calculations to a Web Worker to keep the main thread responsive.
+    * **Tiling**: Implement a tiling strategy where only visible map tiles are rendered, loading more details as the user zooms in.
+    * **WebGL**: For more complex and high-performance rendering, consider using WebGL (e.g., with libraries like Three.js ordeck.gl) instead of 2D canvas for drawing the terrain.
+* **More Visualizations**: Explore other ways to visualize elevation data, such as contour lines, 3D wireframes, or shaded relief maps.
+* **Grayscale Toggle**: Add a toggle switch for the `grayScale` setting in the UI.
+* **Error Display**: Implement a more user-friendly error display on the canvas or within the UI if map loading or drawing fails.
+
+## Project Showcase
+
+Visual appearance of the project in guide and showcase can be different
+
+<div class="container mx-auto max-w-[360px] md:max-w-[720px]">
+    <Map client:only="solid-js" />
+</div>

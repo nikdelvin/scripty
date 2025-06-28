@@ -50,6 +50,17 @@ body {
     --sl-line-height-headings: 1.2;
 }
 
+img[alt='inline'] {
+    display: inline-block !important; 
+    margin: 0 !important;
+    margin-bottom: 1px !important;
+    vertical-align: middle;
+}
+
+.expressive-code pre > code {
+    font-size: smaller;
+}
+
 @media screen and (max-width: 768px) {
     ul[role='tablist'],
     .tab-link {

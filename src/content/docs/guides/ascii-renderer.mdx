@@ -1,0 +1,879 @@
+---
+title: "H0W_T0: ASCII_Renderer"
+description: A beginner's guide to building a new stunning React project to create an ASCII art generator.
+---
+import Canvas from '../../../components/ASCIIRenderer/Canvas'
+
+This guide will walk you through setting up a new `React` project to create an `ASCII` art generator.
+
+## 1. Set up a New React Project
+
+First, you'll need `Node.js` and `npm` (or `pnpm` / `yarn`) installed on your machine. If you don't have them, download them from the source links below:
+* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://nodejs.org) `Node.js` & `npm` from official website
+* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://pnpm.io) `pnpm` from official website
+* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://yarnpkg.com) `yarn` from official website
+
+Open your terminal or command prompt and run the following command to create a new `React` project using `Vite` (a fast build tool often used with `React`):
+```bash
+npm create vite@latest ascii-renderer-app -- --template react-ts
+```
+* `ascii-renderer-app`: This specifies your project name.
+* `--template react-ts`: This specifies that you want a `React` project with `TypeScript`.
+
+Navigate into your new project directory:
+```bash
+cd ascii-renderer-app
+```
+
+Install the necessary dependencies:
+```bash
+npm install
+```
+
+## 2. Install Tailwind CSS
+
+This project uses `Tailwind CSS` for styling. A utility-first `CSS` framework for rapidly building custom user interfaces. You can check `Tailwind` documentation using link below:
+* [![inline](https://img.shields.io/badge/Documentation-c0c9d5)](https://tailwindcss.com/docs) of `Tailwind CSS` from official website
+
+Install it by running:
+```bash
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+This will create `tailwind.config.js` and `postcss.config.js` files in your project root.
+
+### 2.1. Configure Tailwind CSS
+
+Open `tailwind.config.js` and configure the content array to scan all your `React` components for `Tailwind` classes:
+```js
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+Open your main `CSS` file (e.g., `src/index.css` or `src/App.css`) and add the `Tailwind` directives:
+```css
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: Basic body styling for full-screen background */
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #1a202c; /* Dark background */
+  font-family: 'Inter', sans-serif; /* Recommended font */
+}
+
+/* Specific styles for the ASCII art container */
+.canvas-card {
+  /* Added specific styles here to make it visually distinct */
+  margin-top: 50px; /* Space from the top tabs */
+  background-color: black;
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+  padding: 0.5rem;
+  border: 1px solid #4a5568; /* border-gray-700 */
+}
+
+/* Ensure the pre element fills its container */
+.canvas-card pre {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+```
+
+## 3. Create utility Functions and Classes
+
+Create a new folder `src/utils` and recreate same files structure inside the folder using JavaScript code samples provided below.
+
+### 3.1. `getData(ctx, source, isVideo)` function
+```js
+/* src/utils/getData.ts */
+/**
+ * Calculates the ASCII representation of an image or video frame.
+ * @param ctx The 2D rendering context of the canvas.
+ * @param source The HTMLImageElement or HTMLVideoElement to process.
+ * @param isVideo True if the source is a video, false otherwise.
+ * @returns An object containing the ASCII art string, width, and height.
+ */
+export function getData(
+    ctx: CanvasRenderingContext2D | null,
+    source: HTMLImageElement | HTMLVideoElement,
+    isVideo?: boolean
+) {
+    // Gradient characters from darkest to lightest
+    const gradient = ' .:!/r(l1Z4H9W8$@';
+    const width = isVideo ? (source as HTMLVideoElement).videoWidth : source.width;
+    const height = isVideo ? (source as HTMLVideoElement).videoHeight : source.height;
+
+    // Draw the image/video frame onto the canvas
+    ctx?.drawImage(source, 0, 0, width, height);
+
+    // Get the image data from the canvas
+    const imageData = ctx?.getImageData(0, 0, width, height);
+    const lettersData: string[] = [];
+
+    // Iterate through each pixel's RGB data
+    for (let x = 0, len = imageData?.data.length as number; x < len; x += 4) {
+        const r = imageData?.data[x] as number;
+        const g = imageData?.data[x + 1] as number;
+        const b = imageData?.data[x + 2] as number;
+        // Calculate average brightness
+        const avg = Math.floor((r + g + b) / 3);
+
+        // Map brightness to a character from the gradient
+        if (avg === 255) lettersData.push(gradient[16]); // White
+        else lettersData.push(gradient[Math.floor(avg / 15)]);
+    }
+
+    // Format the ASCII characters into lines with newlines
+    const output: string[] = [];
+    const chunkSize = width;
+    for (let i = 0; i < lettersData.length; i += chunkSize) {
+        const chunk = lettersData.slice(i, i + chunkSize);
+        output.push(`${chunk.join('')}\n`);
+    }
+    return {
+        values: output.join(''),
+        width,
+        height
+    };
+}
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/utils/getData.ts` file:
+* This is the core logic for converting visual data into `ASCII` art.
+* It draws the `source` - image, 2D vector space or video frame (if `isVideo` param is `true`) onto a hidden canvas.
+* It then extracts pixel data, calculates the average brightness of each pixel, and maps it to a character from a predefined `gradient` string. Darker pixels get characters like ` `, and brighter ones get `@`.
+* Finally, it arranges these characters into lines to form the `ASCII` art string.
+
+### 3.2. `updateDataFromImage(imageSrc, callback)` function
+```js
+/* src/utils/updateDataFromImage.ts */
+/**
+ * Updates the canvas data from an image source.
+ * @param imageSrc The URL of the image.
+ * @param callback A function to call with the processed data.
+ */
+export function updateDataFromImage(
+    imageSrc: string,
+    callback: (data: { values: string; width: number; height: number }) => void
+) {
+    new Promise((resolve) => {
+        const image = new Image();
+        image.src = imageSrc;
+        // Set crossOrigin to 'anonymous' to handle CORS if the image server supports it.
+        // This is crucial for getImageData to work on cross-origin images.
+        image.crossOrigin = 'anonymous'; 
+        image.onerror = () => {
+            console.error("Failed to load image:", imageSrc);
+            // Provide a fallback or handle the error gracefully
+            callback({ values: "Error loading image.", width: 100, height: 20 });
+        };
+        image.addEventListener('load', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = image.width;
+            canvas.height = image.height;
+            const ctx = canvas.getContext('2d');
+            resolve(getData(ctx, image));
+        });
+    }).then((data) => {
+        callback(
+            data as {
+                values: string;
+                width: number;
+                height: number;
+            }
+        );
+    });
+}
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/utils/updateDataFromImage.ts` file:
+* Loads an image from the provided `imageSrc`.
+* Once loaded, it processes the image using `getData` and then calls the `callback` function with the resulting `ASCII` art data.
+* It uses `https://placehold.co/` for placeholder images.
+
+### 3.3. `updateDataFromVideo(videoSrc, callback, signal)` function
+```js
+/* src/utils/updateDataFromVideo.ts */
+/**
+ * Updates the canvas data from a video source in real-time.
+ * @param videoSrc The URL of the video.
+ * @param callback A function to call with each frame's processed data.
+ * @param signal An AbortSignal to stop the video processing loop.
+ * @returns A cleanup function to stop the video playback and animation frame loop.
+ */
+export function updateDataFromVideo(
+    videoSrc: string,
+    callback: (data: { values: string; width: number; height: number }) => void,
+    signal: AbortSignal
+) {
+    const video = document.createElement('video');
+    video.src = videoSrc;
+    video.autoplay = true;
+    video.muted = true;
+    video.playsInline = true;
+    video.loop = true;
+    // Set crossOrigin to 'anonymous' to allow getImageData on canvas for cross-origin videos
+    video.crossOrigin = 'anonymous';
+
+    let animationFrameId: number; // To store the requestAnimationFrame ID
+
+    video.addEventListener('loadeddata', function () {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        // willReadFrequently: true can improve performance for frequent read operations
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+        function update() {
+            // Check if the signal has been aborted to stop the loop
+            if (signal.aborted) {
+                video.pause();
+                video.remove();
+                return;
+            }
+            callback(getData(ctx, video, true));
+            animationFrameId = requestAnimationFrame(update);
+        }
+
+        video.play();
+        animationFrameId = requestAnimationFrame(update);
+    });
+
+    // Return a cleanup function for React's useEffect
+    return () => {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId); // Cancel ongoing animation frame
+        }
+        video.pause(); // Pause video playback
+        video.remove(); // Remove video element from DOM (if appended, though not in this code)
+    };
+}
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/utils/updateDataFromVideo.ts` file:
+* Creates a hidden `<video/>` element and loads the video from `videoSrc`.
+* Uses `requestAnimationFrame` to continuously draw each video frame onto a canvas and convert it to `ASCII` art via `getData`.
+* The `signal: AbortSignal` is crucial for React's `useEffect` cleanup. When the `useEffect` hook re-runs (e.g., if you switch tabs), it sends an `abort` signal to stop the ongoing video processing loop, preventing memory leaks and ensuring only the active content type is processed.
+* It uses `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4` as a sample video. If you use your own video, ensure its server has [CORS (Cross-Origin Resource Sharing)](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) headers configured to allow access from your application's domain, or the `canvas` will become "tainted," and you won't be able to extract pixel data. The `video.crossOrigin = 'anonymous';` line helps with this.
+
+### 3.4. `updateDataFrom2DSpace(space, callback, signal)` function
+```js
+/* src/utils/updateDataFrom2DSpace.ts */
+/**
+ * Updates the canvas data from a 2D space simulation.
+ * @param space Configuration for the 2D space simulation.
+ * @param callback A function to call with each frame's processed data.
+ * @param signal An AbortSignal to stop the simulation loop.
+ */
+export async function updateDataFrom2DSpace(
+    space: {
+        width: number;
+        height: number;
+        objectsRender: (tick: number, isMobile: boolean) => string[][];
+        isMobile: boolean;
+    },
+    callback: (data: { values: string; width: number; height: number }) => void,
+    signal: AbortSignal
+) {
+    let tick = 0;
+    let continueLoop = true; // Local flag to control the while loop
+
+    // Listen for abort signal to stop the loop
+    signal.addEventListener('abort', () => {
+        continueLoop = false;
+        console.log('2D Space update signaled to stop.');
+    });
+
+    while (continueLoop) {
+        // Wait for a short duration to simulate frames (approx 60 FPS)
+        await new Promise((resolve) => setTimeout(resolve, 16.67));
+
+        // Check again after awaiting in case the signal came during the wait
+        if (!continueLoop) break;
+
+        // Render objects in the 2D space
+        const objects = space.objectsRender(tick, space.isMobile);
+        // Initialize output grid with spaces
+        const output: string[][] = new Array(space.height).fill(true).map(() => new Array(space.width).fill(' '));
+
+        // Place rendered objects onto the grid
+        for (const coord of [...new Set(objects.flat())]) {
+            const x = Number(coord.split(';')[0]) + Math.floor(space.width / 2);
+            const y = Number(coord.split(';')[1]) + Math.floor(space.height / 2);
+            // Use try-catch for potential out-of-bounds access if objectsRender returns unexpected coords
+            try {
+                if (y >= 0 && y < space.height && x >= 0 && x < space.width) {
+                    output[y][x] = '@'; // Use '@' to represent objects
+                }
+            } catch (e) {
+                console.warn("Coordinate out of bounds:", coord, e);
+            }
+        }
+
+        // Join the grid into a single string with newlines
+        const chunks = [];
+        for (const chunk of output) {
+            chunks.push(chunk.join(''));
+        }
+
+        callback({
+            values: chunks.reverse().join('\n'), // Reverse for y-axis orientation
+            width: space.width,
+            height: space.height
+        });
+
+        tick++;
+    }
+}
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/utils/updateDataFrom2DSpace.ts` file:
+* This function simulates a 2D environment (a simple solar system).
+* It uses `setInterval` (or `setTimeout` within a `while` loop, as implemented here) to generate frames.
+* `objectsRender` calculates the positions of celestial bodies.
+* The `signal: AbortSignal` works similarly to the video function, allowing `useEffect` to stop the simulation when no longer needed.
+
+### 3.5. `Vec2D` class
+```js
+/* src/utils/vector2D.ts */
+/**
+ * Represents a 2D vector with various utility methods.
+ */
+export class Vec2D {
+    x: number;
+    y: number;
+    len: number; // Magnitude of the vector
+
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+        this.len = Math.sqrt(x * x + y * y);
+    }
+
+    // Vector addition
+    public add(vector: Vec2D): Vec2D {
+        return new Vec2D(this.x + vector.x, this.y + vector.y);
+    }
+
+    // Vector subtraction
+    public subtract(vector: Vec2D): Vec2D {
+        return new Vec2D(this.x - vector.x, this.y - vector.y);
+    }
+
+    // Element-wise multiplication
+    public multiply(vector: Vec2D): Vec2D {
+        return new Vec2D(this.x * vector.x, this.y * vector.y);
+    }
+
+    // Element-wise division
+    public divide(vector: Vec2D): Vec2D {
+        return new Vec2D(this.x / vector.x, this.y / vector.y);
+    }
+
+    // Check for exact equality of x and y components
+    public equals(vector: Vec2D): boolean {
+        return this.x === vector.x && this.y === vector.y;
+    }
+
+    // Check if lengths are equal
+    public hasSameLength(vector: Vec2D): boolean {
+        return this.len === vector.len;
+    }
+
+    // Check if this vector is shorter than another
+    public isShorterThan(vector: Vec2D): boolean {
+        return this.len < vector.len;
+    }
+
+    // Check if this vector is longer than another
+    public isLongerThan(vector: Vec2D): boolean {
+        return this.len > vector.len;
+    }
+
+    /**
+     * Generates a list of coordinates representing a line between this vector and another.
+     * Uses a simple linear interpolation.
+     * @param vector The end point of the line.
+     * @returns An array of string coordinates (e.g., "x;y").
+     */
+    public line(vector: Vec2D): string[] {
+        const dots: string[] = [];
+        // Iterate along the line from 0 to 1
+        for (let t = 0; t < 1; t += 0.0001) {
+            dots.push(`${Math.floor(this.x + (vector.x - this.x) * t)};${Math.floor(this.y + (vector.y - this.y) * t)}`);
+        }
+        return [...new Set(dots)]; // Return unique coordinates
+    }
+
+    /**
+     * Calculates the Euclidean distance (length) between this vector and another.
+     * @param vector The other vector.
+     * @returns The integer length of the line.
+     */
+    public lineLength(vector: Vec2D): number {
+        return Math.floor(
+            Math.sqrt(Math.pow(Math.abs(this.x - vector.x), 2) + Math.pow(Math.abs(this.y - vector.y), 2))
+        );
+    }
+
+    /**
+     * Generates a list of coordinates representing a circle centered at this vector.
+     * @param radius The radius of the circle.
+     * @returns An array of string coordinates (e.g., "x;y").
+     */
+    public circle(radius: number): string[] {
+        const dots: string[] = [];
+        // Iterate through angles from 0 to 2*PI
+        for (let t = 0; t < 2 * Math.PI; t += 0.0001) {
+            dots.push(`${Math.floor(this.x + radius * Math.cos(t))};${Math.floor(this.y + radius * Math.sin(t))}`);
+        }
+        return [...new Set(dots)]; // Return unique coordinates
+    }
+
+    /**
+     * Rotates a list of Vec2D objects around this vector (the center of rotation).
+     * @param objects The array of Vec2D objects to rotate.
+     * @param clockSide True for clockwise rotation, false for counter-clockwise.
+     * @param tick The current animation tick (determines rotation angle).
+     * @param speed The speed multiplier for rotation.
+     * @returns A new array of rotated Vec2D objects.
+     */
+    public rotateCircle(objects: Vec2D[], clockSide: boolean, tick: number, speed: number): Vec2D[] {
+        const newObjects: Vec2D[] = [];
+        for (const object of objects) {
+            // Calculate the current angle of the object relative to the center
+            const dx = object.x - this.x;
+            const dy = object.y - this.y;
+            let angle = Math.atan2(dy, dx); // Use atan2 for correct angle in all quadrants
+
+            // Calculate new angle based on tick and speed
+            const rotationAngle = tick / speed;
+            const newAngle = clockSide ? angle - rotationAngle : angle + rotationAngle;
+
+            // Calculate new coordinates
+            const distance = this.lineLength(object); // Distance from center to object
+            newObjects.push(
+                new Vec2D(
+                    this.x + Math.floor(distance * Math.cos(newAngle)),
+                    this.y + Math.floor(distance * Math.sin(newAngle))
+                )
+            );
+        }
+        return newObjects;
+    }
+}
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/utils/vector2D.ts` file:
+* A utility class for 2D vector operations (addition, subtraction, multiplication, division, distance, circle generation, rotation). This is used by `objectsRender` to calculate positions of planets and the sun.
+
+### 3.6. `objectsRender(tick, isMobile)` function
+```js
+/* src/utils/objectsRender.ts */
+import { Vec2D } from './vector2D'
+
+/**
+ * Renders a simplified solar system for the 2D space animation.
+ * @param tick The current animation tick.
+ * @param isMobile True if the device is mobile (affects size multiplier).
+ * @returns An array of arrays of string coordinates for planets/sun.
+ */
+export const objectsRender = (tick: number, isMobile: boolean): string[][] => {
+    const sizeMultiplier = isMobile ? 2 : 1; // Adjust size for mobile
+    const sunCentre = new Vec2D(0, 0); // Sun at the center of the coordinate system
+
+    // Initial positions of planets relative to the sun (conceptually)
+    const planets = {
+        mercuryCentre: new Vec2D(Math.floor((45 + 4) / sizeMultiplier), 0),
+        venusCentre: new Vec2D(Math.floor((45 + 8) / sizeMultiplier), 0),
+        earthCentre: new Vec2D(Math.floor((45 + 11) / sizeMultiplier), 0),
+        marsCentre: new Vec2D(Math.floor((45 + 17) / sizeMultiplier), 0),
+        jupiterCentre: new Vec2D(Math.floor((45 + 57) / sizeMultiplier), 0),
+        saturnCentre: new Vec2D(Math.floor((45 + 105) / sizeMultiplier), 0),
+        uranusCentre: new Vec2D(Math.floor((45 + 211) / sizeMultiplier), 0),
+        neptuneCentre: new Vec2D(Math.floor((45 + 300) / sizeMultiplier), 0)
+    };
+
+    // Orbital speeds (approximated, relative to Earth's 1-year orbit)
+    const speedMultiply = [0.24, 0.61, 1, 1.88, 11.86, 29.46, 84.01, 164.79];
+
+    // Rotate each planet around the sun based on their orbital speed and current tick
+    Array.from(Object.keys(planets)).forEach((planetKey, index) => {
+        (planets as Record<string, Vec2D>)[planetKey] = sunCentre.rotateCircle(
+            [(planets as Record<string, Vec2D>)[planetKey]],
+            true, // Clockwise rotation
+            tick,
+            speedMultiply[index] * 10 // Adjust speed for animation
+        )[0];
+    });
+
+    // Generate circle coordinates for the sun and each planet
+    const dots: string[][] = [
+        sunCentre.circle(45 / sizeMultiplier), // Sun's "orbit" (large radius for visual size)
+        planets.mercuryCentre.circle(0.38 / sizeMultiplier),
+        planets.venusCentre.circle(0.94 / sizeMultiplier),
+        planets.earthCentre.circle(1 / sizeMultiplier),
+        planets.marsCentre.circle(0.53 / sizeMultiplier),
+        planets.jupiterCentre.circle(11.21 / sizeMultiplier),
+        planets.saturnCentre.circle(9.41 / sizeMultiplier),
+        planets.uranusCentre.circle(3.98 / sizeMultiplier),
+        planets.neptuneCentre.circle(3.81 / sizeMultiplier)
+    ];
+    return dots;
+}
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/utils/objectsRender.ts` file:
+* This function, part of the 2D space simulation, determines the positions of the sun and planets based on the current `tick` (animation frame) and `isMobile` status (to adjust sizes for responsiveness).
+
+### 3.7. `emptyState(type, isMobile)` function
+```js
+/* src/utils/emptyState.ts */
+/**
+ * Creates an empty canvas state with a default type and dimensions.
+ * @param type The type of the canvas ('image', 'video', '2d').
+ * @param isMobile True if rendering for a mobile device.
+ * @returns An initial CanvasState object.
+ */
+export function emptyState(type: string, isMobile: boolean): CanvasState {
+    const width = isMobile ? 360 : 720;
+    const height = isMobile ? 360 : 720;
+    // Create an empty grid filled with spaces
+    const emptyValues = new Array(height).fill(`${new Array(width).fill(' ').join('')}\n`).join('');
+    return {
+        type,
+        values: emptyValues,
+        width,
+        height
+    };
+}
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/utils/emptyState.ts` file:
+* Provides a default, empty ASCII art state for the canvas, useful for initializing or resetting the display.
+
+### 3.8. `utils.ts` main export file
+```js
+/* src/utils/utils.ts */
+import { getData } from './getData'
+import { updateDataFromImage } from './updateDataFromImage'
+import { updateDataFromVideo } from './updateDataFromVideo'
+import { updateDataFrom2DSpace } from './updateDataFrom2DSpace'
+import { objectsRender } from './objectsRender'
+import { emptyState } from './emptyState'
+
+export { getData, updateDataFromImage, updateDataFromVideo, updateDataFrom2DSpace, objectsRender, emptyState }
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/utils/utils.ts` file:
+* The primary purpose of this file is to act as a central hub for all utility functions for our project. It imports functions from other files within the same `/utils` directory and then exports them all from this single file.
+
+## 4. Add the `Tablist` React Component
+
+Create a new file `src/components/Tablist.tsx` and paste the entire React code provided below into it.
+```js
+/* src/components/Tablist.tsx */
+/**
+ * A simple Tablist component for navigation between content types.
+ * @param props.list An array of tab objects { label, active, onClick }.
+ * @param props.className Additional CSS classes for the container.
+ */
+export const Tablist: React.FC<{ list: { label: string; active: boolean; onClick: () => void }[]; className?: string }> = ({ list, className = '' }) => (
+    <div className={`flex rounded-md bg-gray-700 p-1 space-x-1 ${className}`}>
+        {list.map((item, index) => (
+            <button
+                key={index}
+                onClick={item.onClick}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 ${
+                    item.active ? 'bg-blue-600 text-white shadow-md' : 'text-gray-300 hover:bg-gray-600 hover:text-white'
+                }`}
+            >
+                {item.label}
+            </button>
+        ))}
+    </div>
+);
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/components/Tablist.tsx` file:
+* A simple, reusable React component for creating navigation tabs. It takes a list of tab configurations (`label`, `active` status, `onClick` handler) and renders them as buttons.
+
+## 5. Add the `Canvas` React Component
+
+Create a new file `src/Canvas.tsx` and paste the entire React code provided below into it.
+```js
+/* src/Canvas.tsx */
+import React, { useState, useEffect, useCallback } from 'react';
+import { Tablist } from './components/Tablist'
+import { getData, updateDataFromImage, updateDataFromVideo, updateDataFrom2DSpace, objectsRender, emptyState } from './utils/utils'
+
+// Define the shape of our canvas state
+interface CanvasState {
+    type: string;
+    values: string;
+    width: number;
+    height: number;
+}
+
+const Canvas: React.FC = () => {
+    // State to determine if the device is mobile, updated on resize
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    // State for the current content type (2d, image, video)
+    const [type, setType] = useState('video');
+    // State for the font size of the ASCII art (1px or 2px)
+    const [fontSize, setFontSize] = useState(1);
+    // State for the actual canvas data (ASCII string, width, height)
+    const [canvas, setCanvas] = useState<CanvasState>(emptyState('video', isMobile));
+
+    // Effect to update isMobile state on window resize
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize); // Cleanup listener
+    }, []);
+
+    // Effect to update canvas content based on type, font size, and mobile status
+    useEffect(() => {
+        const isScaled = fontSize > 1;
+        // Initialize canvas with empty state for the new configuration
+        setCanvas(emptyState(type, isMobile || isScaled));
+
+        let cleanupFn: (() => void) | undefined;
+        // AbortController allows canceling ongoing asynchronous operations
+        const abortController = new AbortController();
+        const signal = abortController.signal;
+
+        if (type === 'image') {
+            updateDataFromImage(
+                // Using picsum.photos for CORS-friendly images
+                `https://picsum.photos/id/${Math.floor(Math.random() * 1000)}/${isMobile || isScaled ? '360' : '720'}/${isMobile || isScaled ? '360' : '720'}`,
+                (data) => {
+                    // Only update if the effect hasn't been re-run with a different type
+                    if (!signal.aborted && type === 'image') {
+                        setCanvas({ ...data, type: 'image' });
+                    }
+                }
+            );
+        } else if (type === 'video') {
+            cleanupFn = updateDataFromVideo(
+                // Sample video URL (Big Buck Bunny, public domain)
+                // If you use your own video, ensure it's CORS-enabled for your domain
+                `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4`,
+                (data) => {
+                    // Check if the current type is still 'video' and scale matches before updating
+                    if (!signal.aborted && type === 'video' && (isScaled === (fontSize > 1))) {
+                        setCanvas({ ...data, type: 'video' });
+                    } else {
+                        // If conditions change, signal to stop the video processing
+                        abortController.abort();
+                    }
+                },
+                signal
+            );
+        } else if (type === '2d') {
+            // No direct cleanupFn return as updateDataFrom2DSpace uses an internal loop with signal
+            updateDataFrom2DSpace(
+                {
+                    width: isMobile || isScaled ? 360 : 720,
+                    height: isMobile || isScaled ? 360 : 720,
+                    objectsRender, // The solar system rendering logic
+                    isMobile: isMobile || isScaled,
+                },
+                (data) => {
+                    // Check if the current type is still '2d' and scale matches before updating
+                    if (!signal.aborted && type === '2d' && (isScaled === (fontSize > 1))) {
+                        setCanvas({ ...data, type: '2d' });
+                    } else {
+                        // If conditions change, signal to stop the 2D space processing
+                        abortController.abort();
+                    }
+                },
+                signal
+            );
+        }
+
+        // Cleanup function for useEffect: abort ongoing operations
+        return () => {
+            abortController.abort(); // Signal all pending operations to stop
+            if (cleanupFn) {
+                cleanupFn(); // Call specific cleanup if returned by updateDataFromVideo
+            }
+        };
+    }, [type, fontSize, isMobile]); // Rerun effect when these dependencies change
+
+    return (
+        <div className="relative overflow-hidden flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-row items-center space-x-2 z-10">
+                <Tablist
+                    list={[
+                        {
+                            label: '2D Space',
+                            active: type === '2d',
+                            onClick: () => {
+                                setType('2d');
+                            }
+                        },
+                        {
+                            label: 'Image',
+                            active: type === 'image',
+                            onClick: () => {
+                                setType('image');
+                            }
+                        },
+                        {
+                            label: 'Video',
+                            active: type === 'video',
+                            onClick: () => {
+                                setType('video');
+                            }
+                        }
+                    ]}
+                />
+                {!isMobile && (
+                    <Tablist
+                        className="ml-1" // Adjusted margin-left
+                        list={[
+                            {
+                                label: '1px Font',
+                                active: fontSize === 1,
+                                onClick: () => {
+                                    setFontSize(1);
+                                }
+                            },
+                            {
+                                label: '2px Font',
+                                active: fontSize === 2,
+                                onClick: () => {
+                                    setFontSize(2);
+                                }
+                            }
+                        ]}
+                    />
+                )}
+            </div>
+            {/* Canvas display area */}
+            <div className="flex-grow flex items-center justify-center p-4">
+                <pre
+                    className="canvas-card bg-black border border-gray-700 rounded-lg shadow-xl p-0.5"
+                    style={{
+                        display: 'flex',
+                        fontFamily: 'monospace',
+                        fontSize: `${fontSize}px`,
+                        color: 'lime', // Changed to lime for a classic ASCII terminal look
+                        width: `${fontSize * canvas.width}px`,
+                        height: `${fontSize * canvas.height}px`,
+                        lineHeight: '1',
+                        letterSpacing: `${fontSize * 0.3979 - Math.ceil((fontSize - 1) / 2) * 0.0001}px`,
+                        whiteSpace: 'pre', // Preserve whitespace for ASCII art
+                        margin: 'auto',
+                        overflow: 'hidden', // Hide scrollbars if content overflows slightly
+                        background: 'black',
+                        textAlign: 'left' // Ensure text aligns to the left
+                    }}
+                >
+                    {canvas.values}
+                </pre>
+            </div>
+        </div>
+    );
+};
+
+export default Canvas;
+```
+#### Understanding the Code
+
+Let's break down the key parts of the `src/Canvas.tsx` file:
+* `useState` Hooks:
+    * `isMobile`: Detects if the screen width is less than 768px for responsive adjustments.
+    * `type`: Manages the currently selected content type ('2d', 'image', 'video').
+    * `fontSize`: Controls the font size of the ASCII characters (1px or 2px).
+    * `canvas`: Holds the actual `ASCII` art data (`values`, `width`, `height`).
+* `useEffect` Hooks:
+    * The first `useEffect` manages the `isMobile` state by adding and removing a resize event listener.
+    * The second, larger `useEffect` is the core of the component:
+	    * It runs whenever `type`, `fontSize`, or `isMobile` changes.
+	    * It initializes an `AbortController` and its `signal`. This `signal` is passed to `updateDataFromVideo` and `updateDataFrom2DSpace` to allow these long-running asynchronous processes to be gracefully stopped when the component unmounts or its dependencies change.
+	    * Based on the `type` state, it calls the appropriate `updateDataFrom...` function to fetch and process data.
+	    * The `return` function inside `useEffect` is the cleanup function. It calls `abortController.abort()` to signal all ongoing operations to stop, ensuring resources are released.
+* JSX Structure:
+    * Renders the `Tablist` components for selecting the content type and font size.
+    * The `ASCII` art is displayed within a `<pre/>` tag. `whiteSpace: 'pre'` is crucial here to preserve the newlines and spaces that form the `ASCII` art layout.
+    * The style attribute applies dynamic CSS based on `fontSize` and `canvas` dimensions, ensuring the `ASCII` art scales correctly and looks sharp.
+
+## 6. Update `src/App.tsx`
+
+Modify `src/App.tsx` to render your Canvas component:
+```js
+// src/App.tsx
+import React from 'react';
+import Canvas from './Canvas'; // Import your Map component
+import './index.css'; // Ensure your Tailwind CSS is imported
+
+function App() {
+  return (
+    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4">
+      <Canvas />
+    </div>
+  );
+}
+
+export default App;
+```
+
+## 7. Run Your Application
+
+Start the development server:
+```bash
+npm run dev
+```
+Open your web browser and navigate to the address shown in your terminal (usually http://localhost:5173). You should see your `ASCII` art application running!
+
+## Understanding the project purpose
+
+This application demonstrates a powerful concept: rendering complex visual data using only `ASCII` characters. It's a great starting point for exploring `canvas` manipulation, `asynchronous` data loading, and basic simulation in `React`.
+
+## Next Steps
+
+* **Experiment with Gradient**: Try changing the `gradient` string in `getData` to see how it affects the `ASCII` art's appearance.
+* **Custom Media**: Replace the `placehold.co` image URLs and the sample video URL with your own images and videos. Remember the `CORS` considerations for videos!
+* **More 2D Simulations**: Extend the `objectsRender` function or create new ones to simulate different 2D physics or animations.
+* **Performance Optimization**: For very large images/videos or complex 2D simulations, you might explore Web Workers to offload the `getData` calculations from the main thread, keeping the UI responsive.
+* **User Uploads**: Add an input field to allow users to upload their own images or videos.
+* **Styling**: Enhance the UI using more advanced Tailwind CSS classes or custom CSS.
+* **Error Handling**: Implement more robust error handling for image and video loading.
+
+## Project Showcase
+
+Visual appearance of the project in guide and showcase can be different
+
+<div class="container mx-auto max-w-[360px] md:max-w-[720px]">
+    <Canvas client:only="solid-js" />
+</div>
