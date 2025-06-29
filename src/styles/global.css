@@ -51,7 +51,7 @@ body {
 }
 
 img[alt='inline'] {
-    display: inline-block !important; 
+    display: inline-block !important;
     margin: 0 !important;
     margin-bottom: 1px !important;
     vertical-align: middle;

@@ -1,7 +1,8 @@
 ---
-title: "H0W_T0: ASCII_Renderer"
+title: 'H0W_T0: ASCII_Renderer'
 description: A beginner's guide to building a new stunning React project to create an ASCII art generator.
 ---
+
 import Canvas from '../../../components/ASCIIRenderer/Canvas'
 
 This guide will walk you through setting up a new `React` project to create an `ASCII` art generator.
@@ -9,23 +10,28 @@ This guide will walk you through setting up a new `React` project to create an `
 ## 1. Set up a New React Project
 
 First, you'll need `Node.js` and `npm` (or `pnpm` / `yarn`) installed on your machine. If you don't have them, download them from the source links below:
-* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://nodejs.org) `Node.js` & `npm` from official website
-* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://pnpm.io) `pnpm` from official website
-* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://yarnpkg.com) `yarn` from official website
+
+- [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://nodejs.org) `Node.js` & `npm` from official website
+- [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://pnpm.io) `pnpm` from official website
+- [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://yarnpkg.com) `yarn` from official website
 
 Open your terminal or command prompt and run the following command to create a new `React` project using `Vite` (a fast build tool often used with `React`):
+
 ```bash
 npm create vite@latest ascii-renderer-app -- --template react-ts
 ```
-* `ascii-renderer-app`: This specifies your project name.
-* `--template react-ts`: This specifies that you want a `React` project with `TypeScript`.
+
+- `ascii-renderer-app`: This specifies your project name.
+- `--template react-ts`: This specifies that you want a `React` project with `TypeScript`.
 
 Navigate into your new project directory:
+
 ```bash
 cd ascii-renderer-app
 ```
 
 Install the necessary dependencies:
+
 ```bash
 npm install
 ```
@@ -33,9 +39,11 @@ npm install
 ## 2. Install Tailwind CSS
 
 This project uses `Tailwind CSS` for styling. A utility-first `CSS` framework for rapidly building custom user interfaces. You can check `Tailwind` documentation using link below:
-* [![inline](https://img.shields.io/badge/Documentation-c0c9d5)](https://tailwindcss.com/docs) of `Tailwind CSS` from official website
+
+- [![inline](https://img.shields.io/badge/Documentation-c0c9d5)](https://tailwindcss.com/docs) of `Tailwind CSS` from official website
 
 Install it by running:
+
 ```bash
 npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
@@ -46,22 +54,21 @@ This will create `tailwind.config.js` and `postcss.config.js` files in your proj
 ### 2.1. Configure Tailwind CSS
 
 Open `tailwind.config.js` and configure the content array to scan all your `React` components for `Tailwind` classes:
+
 ```js
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
+    content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+    theme: {
+        extend: {}
+    },
+    plugins: []
 }
 ```
 
 Open your main `CSS` file (e.g., `src/index.css` or `src/App.css`) and add the `Tailwind` directives:
+
 ```css
 /* src/index.css */
 @tailwind base;
@@ -70,31 +77,33 @@ Open your main `CSS` file (e.g., `src/index.css` or `src/App.css`) and add the `
 
 /* Optional: Basic body styling for full-screen background */
 body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  background-color: #1a202c; /* Dark background */
-  font-family: 'Inter', sans-serif; /* Recommended font */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #1a202c; /* Dark background */
+    font-family: 'Inter', sans-serif; /* Recommended font */
 }
 
 /* Specific styles for the ASCII art container */
 .canvas-card {
-  /* Added specific styles here to make it visually distinct */
-  margin-top: 50px; /* Space from the top tabs */
-  background-color: black;
-  border-radius: 0.5rem; /* rounded-lg */
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
-  padding: 0.5rem;
-  border: 1px solid #4a5568; /* border-gray-700 */
+    /* Added specific styles here to make it visually distinct */
+    margin-top: 50px; /* Space from the top tabs */
+    background-color: black;
+    border-radius: 0.5rem; /* rounded-lg */
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+    padding: 0.5rem;
+    border: 1px solid #4a5568; /* border-gray-700 */
 }
 
 /* Ensure the pre element fills its container */
 .canvas-card pre {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
 }
 ```
 
@@ -103,6 +112,7 @@ body {
 Create a new folder `src/utils` and recreate same files structure inside the folder using JavaScript code samples provided below.
 
 ### 3.1. `getData(ctx, source, isVideo)` function
+
 ```js
 /* src/utils/getData.ts */
 /**
@@ -156,15 +166,18 @@ export function getData(
     };
 }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/getData.ts` file:
-* This is the core logic for converting visual data into `ASCII` art.
-* It draws the `source` - image, 2D vector space or video frame (if `isVideo` param is `true`) onto a hidden canvas.
-* It then extracts pixel data, calculates the average brightness of each pixel, and maps it to a character from a predefined `gradient` string. Darker pixels get characters like ` `, and brighter ones get `@`.
-* Finally, it arranges these characters into lines to form the `ASCII` art string.
+
+- This is the core logic for converting visual data into `ASCII` art.
+- It draws the `source` - image, 2D vector space or video frame (if `isVideo` param is `true`) onto a hidden canvas.
+- It then extracts pixel data, calculates the average brightness of each pixel, and maps it to a character from a predefined `gradient` string. Darker pixels get characters like ` `, and brighter ones get `@`.
+- Finally, it arranges these characters into lines to form the `ASCII` art string.
 
 ### 3.2. `updateDataFromImage(imageSrc, callback)` function
+
 ```js
 /* src/utils/updateDataFromImage.ts */
 /**
@@ -181,7 +194,7 @@ export function updateDataFromImage(
         image.src = imageSrc;
         // Set crossOrigin to 'anonymous' to handle CORS if the image server supports it.
         // This is crucial for getImageData to work on cross-origin images.
-        image.crossOrigin = 'anonymous'; 
+        image.crossOrigin = 'anonymous';
         image.onerror = () => {
             console.error("Failed to load image:", imageSrc);
             // Provide a fallback or handle the error gracefully
@@ -205,14 +218,17 @@ export function updateDataFromImage(
     });
 }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/updateDataFromImage.ts` file:
-* Loads an image from the provided `imageSrc`.
-* Once loaded, it processes the image using `getData` and then calls the `callback` function with the resulting `ASCII` art data.
-* It uses `https://placehold.co/` for placeholder images.
+
+- Loads an image from the provided `imageSrc`.
+- Once loaded, it processes the image using `getData` and then calls the `callback` function with the resulting `ASCII` art data.
+- It uses `https://placehold.co/` for placeholder images.
 
 ### 3.3. `updateDataFromVideo(videoSrc, callback, signal)` function
+
 ```js
 /* src/utils/updateDataFromVideo.ts */
 /**
@@ -270,15 +286,18 @@ export function updateDataFromVideo(
     };
 }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/updateDataFromVideo.ts` file:
-* Creates a hidden `<video/>` element and loads the video from `videoSrc`.
-* Uses `requestAnimationFrame` to continuously draw each video frame onto a canvas and convert it to `ASCII` art via `getData`.
-* The `signal: AbortSignal` is crucial for React's `useEffect` cleanup. When the `useEffect` hook re-runs (e.g., if you switch tabs), it sends an `abort` signal to stop the ongoing video processing loop, preventing memory leaks and ensuring only the active content type is processed.
-* It uses `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4` as a sample video. If you use your own video, ensure its server has [CORS (Cross-Origin Resource Sharing)](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) headers configured to allow access from your application's domain, or the `canvas` will become "tainted," and you won't be able to extract pixel data. The `video.crossOrigin = 'anonymous';` line helps with this.
+
+- Creates a hidden `<video/>` element and loads the video from `videoSrc`.
+- Uses `requestAnimationFrame` to continuously draw each video frame onto a canvas and convert it to `ASCII` art via `getData`.
+- The `signal: AbortSignal` is crucial for React's `useEffect` cleanup. When the `useEffect` hook re-runs (e.g., if you switch tabs), it sends an `abort` signal to stop the ongoing video processing loop, preventing memory leaks and ensuring only the active content type is processed.
+- It uses `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4` as a sample video. If you use your own video, ensure its server has [CORS (Cross-Origin Resource Sharing)](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) headers configured to allow access from your application's domain, or the `canvas` will become "tainted," and you won't be able to extract pixel data. The `video.crossOrigin = 'anonymous';` line helps with this.
 
 ### 3.4. `updateDataFrom2DSpace(space, callback, signal)` function
+
 ```js
 /* src/utils/updateDataFrom2DSpace.ts */
 /**
@@ -348,15 +367,18 @@ export async function updateDataFrom2DSpace(
     }
 }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/updateDataFrom2DSpace.ts` file:
-* This function simulates a 2D environment (a simple solar system).
-* It uses `setInterval` (or `setTimeout` within a `while` loop, as implemented here) to generate frames.
-* `objectsRender` calculates the positions of celestial bodies.
-* The `signal: AbortSignal` works similarly to the video function, allowing `useEffect` to stop the simulation when no longer needed.
+
+- This function simulates a 2D environment (a simple solar system).
+- It uses `setInterval` (or `setTimeout` within a `while` loop, as implemented here) to generate frames.
+- `objectsRender` calculates the positions of celestial bodies.
+- The `signal: AbortSignal` works similarly to the video function, allowing `useEffect` to stop the simulation when no longer needed.
 
 ### 3.5. `Vec2D` class
+
 ```js
 /* src/utils/vector2D.ts */
 /**
@@ -486,12 +508,15 @@ export class Vec2D {
     }
 }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/vector2D.ts` file:
-* A utility class for 2D vector operations (addition, subtraction, multiplication, division, distance, circle generation, rotation). This is used by `objectsRender` to calculate positions of planets and the sun.
+
+- A utility class for 2D vector operations (addition, subtraction, multiplication, division, distance, circle generation, rotation). This is used by `objectsRender` to calculate positions of planets and the sun.
 
 ### 3.6. `objectsRender(tick, isMobile)` function
+
 ```js
 /* src/utils/objectsRender.ts */
 import { Vec2D } from './vector2D'
@@ -546,12 +571,15 @@ export const objectsRender = (tick: number, isMobile: boolean): string[][] => {
     return dots;
 }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/objectsRender.ts` file:
-* This function, part of the 2D space simulation, determines the positions of the sun and planets based on the current `tick` (animation frame) and `isMobile` status (to adjust sizes for responsiveness).
+
+- This function, part of the 2D space simulation, determines the positions of the sun and planets based on the current `tick` (animation frame) and `isMobile` status (to adjust sizes for responsiveness).
 
 ### 3.7. `emptyState(type, isMobile)` function
+
 ```js
 /* src/utils/emptyState.ts */
 /**
@@ -573,12 +601,15 @@ export function emptyState(type: string, isMobile: boolean): CanvasState {
     };
 }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/emptyState.ts` file:
-* Provides a default, empty ASCII art state for the canvas, useful for initializing or resetting the display.
+
+- Provides a default, empty ASCII art state for the canvas, useful for initializing or resetting the display.
 
 ### 3.8. `utils.ts` main export file
+
 ```js
 /* src/utils/utils.ts */
 import { getData } from './getData'
@@ -590,14 +621,17 @@ import { emptyState } from './emptyState'
 
 export { getData, updateDataFromImage, updateDataFromVideo, updateDataFrom2DSpace, objectsRender, emptyState }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/utils.ts` file:
-* The primary purpose of this file is to act as a central hub for all utility functions for our project. It imports functions from other files within the same `/utils` directory and then exports them all from this single file.
+
+- The primary purpose of this file is to act as a central hub for all utility functions for our project. It imports functions from other files within the same `/utils` directory and then exports them all from this single file.
 
 ## 4. Add the `Tablist` React Component
 
 Create a new file `src/components/Tablist.tsx` and paste the entire React code provided below into it.
+
 ```js
 /* src/components/Tablist.tsx */
 /**
@@ -621,14 +655,17 @@ export const Tablist: React.FC<{ list: { label: string; active: boolean; onClick
     </div>
 );
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/components/Tablist.tsx` file:
-* A simple, reusable React component for creating navigation tabs. It takes a list of tab configurations (`label`, `active` status, `onClick` handler) and renders them as buttons.
+
+- A simple, reusable React component for creating navigation tabs. It takes a list of tab configurations (`label`, `active` status, `onClick` handler) and renders them as buttons.
 
 ## 5. Add the `Canvas` React Component
 
 Create a new file `src/Canvas.tsx` and paste the entire React code provided below into it.
+
 ```js
 /* src/Canvas.tsx */
 import React, { useState, useEffect, useCallback } from 'react';
@@ -808,52 +845,57 @@ const Canvas: React.FC = () => {
 
 export default Canvas;
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/Canvas.tsx` file:
-* `useState` Hooks:
-    * `isMobile`: Detects if the screen width is less than 768px for responsive adjustments.
-    * `type`: Manages the currently selected content type ('2d', 'image', 'video').
-    * `fontSize`: Controls the font size of the ASCII characters (1px or 2px).
-    * `canvas`: Holds the actual `ASCII` art data (`values`, `width`, `height`).
-* `useEffect` Hooks:
-    * The first `useEffect` manages the `isMobile` state by adding and removing a resize event listener.
-    * The second, larger `useEffect` is the core of the component:
-	    * It runs whenever `type`, `fontSize`, or `isMobile` changes.
-	    * It initializes an `AbortController` and its `signal`. This `signal` is passed to `updateDataFromVideo` and `updateDataFrom2DSpace` to allow these long-running asynchronous processes to be gracefully stopped when the component unmounts or its dependencies change.
-	    * Based on the `type` state, it calls the appropriate `updateDataFrom...` function to fetch and process data.
-	    * The `return` function inside `useEffect` is the cleanup function. It calls `abortController.abort()` to signal all ongoing operations to stop, ensuring resources are released.
-* JSX Structure:
-    * Renders the `Tablist` components for selecting the content type and font size.
-    * The `ASCII` art is displayed within a `<pre/>` tag. `whiteSpace: 'pre'` is crucial here to preserve the newlines and spaces that form the `ASCII` art layout.
-    * The style attribute applies dynamic CSS based on `fontSize` and `canvas` dimensions, ensuring the `ASCII` art scales correctly and looks sharp.
+
+- `useState` Hooks:
+    - `isMobile`: Detects if the screen width is less than 768px for responsive adjustments.
+    - `type`: Manages the currently selected content type ('2d', 'image', 'video').
+    - `fontSize`: Controls the font size of the ASCII characters (1px or 2px).
+    - `canvas`: Holds the actual `ASCII` art data (`values`, `width`, `height`).
+- `useEffect` Hooks:
+    - The first `useEffect` manages the `isMobile` state by adding and removing a resize event listener.
+    - The second, larger `useEffect` is the core of the component:
+        - It runs whenever `type`, `fontSize`, or `isMobile` changes.
+        - It initializes an `AbortController` and its `signal`. This `signal` is passed to `updateDataFromVideo` and `updateDataFrom2DSpace` to allow these long-running asynchronous processes to be gracefully stopped when the component unmounts or its dependencies change.
+        - Based on the `type` state, it calls the appropriate `updateDataFrom...` function to fetch and process data.
+        - The `return` function inside `useEffect` is the cleanup function. It calls `abortController.abort()` to signal all ongoing operations to stop, ensuring resources are released.
+- JSX Structure:
+    - Renders the `Tablist` components for selecting the content type and font size.
+    - The `ASCII` art is displayed within a `<pre/>` tag. `whiteSpace: 'pre'` is crucial here to preserve the newlines and spaces that form the `ASCII` art layout.
+    - The style attribute applies dynamic CSS based on `fontSize` and `canvas` dimensions, ensuring the `ASCII` art scales correctly and looks sharp.
 
 ## 6. Update `src/App.tsx`
 
 Modify `src/App.tsx` to render your Canvas component:
+
 ```js
 // src/App.tsx
-import React from 'react';
-import Canvas from './Canvas'; // Import your Map component
-import './index.css'; // Ensure your Tailwind CSS is imported
+import React from 'react'
+import Canvas from './Canvas' // Import your Map component
+import './index.css' // Ensure your Tailwind CSS is imported
 
 function App() {
-  return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4">
-      <Canvas />
-    </div>
-  );
+    return (
+        <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-4">
+            <Canvas />
+        </div>
+    )
 }
 
-export default App;
+export default App
 ```
 
 ## 7. Run Your Application
 
 Start the development server:
+
 ```bash
 npm run dev
 ```
+
 Open your web browser and navigate to the address shown in your terminal (usually http://localhost:5173). You should see your `ASCII` art application running!
 
 ## Understanding the project purpose
@@ -862,13 +904,13 @@ This application demonstrates a powerful concept: rendering complex visual data 
 
 ## Next Steps
 
-* **Experiment with Gradient**: Try changing the `gradient` string in `getData` to see how it affects the `ASCII` art's appearance.
-* **Custom Media**: Replace the `placehold.co` image URLs and the sample video URL with your own images and videos. Remember the `CORS` considerations for videos!
-* **More 2D Simulations**: Extend the `objectsRender` function or create new ones to simulate different 2D physics or animations.
-* **Performance Optimization**: For very large images/videos or complex 2D simulations, you might explore Web Workers to offload the `getData` calculations from the main thread, keeping the UI responsive.
-* **User Uploads**: Add an input field to allow users to upload their own images or videos.
-* **Styling**: Enhance the UI using more advanced Tailwind CSS classes or custom CSS.
-* **Error Handling**: Implement more robust error handling for image and video loading.
+- **Experiment with Gradient**: Try changing the `gradient` string in `getData` to see how it affects the `ASCII` art's appearance.
+- **Custom Media**: Replace the `placehold.co` image URLs and the sample video URL with your own images and videos. Remember the `CORS` considerations for videos!
+- **More 2D Simulations**: Extend the `objectsRender` function or create new ones to simulate different 2D physics or animations.
+- **Performance Optimization**: For very large images/videos or complex 2D simulations, you might explore Web Workers to offload the `getData` calculations from the main thread, keeping the UI responsive.
+- **User Uploads**: Add an input field to allow users to upload their own images or videos.
+- **Styling**: Enhance the UI using more advanced Tailwind CSS classes or custom CSS.
+- **Error Handling**: Implement more robust error handling for image and video loading.
 
 ## Project Showcase
 

@@ -3,8 +3,7 @@
     "type": "module",
     "version": "0.0.1",
     "scripts": {
-        "dev": "astro dev",
-        "start": "astro dev",
+        "start": "npm run prettier && npm run eslint && astro dev",
         "build": "astro build",
         "preview": "astro preview",
         "eslint": "eslint --ext .ts,.tsx,.astro src",

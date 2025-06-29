@@ -1,7 +1,8 @@
 ---
-title: "H0W_T0: GeoTIFF_Map_Viewer"
+title: 'H0W_T0: GeoTIFF_Map_Viewer'
 description: A beginner's guide to building a new stunning React project to create a GeoTIFF terrain map viewer.
 ---
+
 import Map from '../../../components/OpenTopoData/Map'
 
 This guide will walk you through setting up a new `React` project to create a `GeoTIFF` terrain map viewer.
@@ -9,23 +10,28 @@ This guide will walk you through setting up a new `React` project to create a `G
 ## 1. Set up a New React Project
 
 First, you'll need `Node.js` and `npm` (or `pnpm` / `yarn`) installed on your machine. If you don't have them, download them from the source links below:
-* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://nodejs.org) `Node.js` & `npm` from official website
-* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://pnpm.io) `pnpm` from official website
-* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://yarnpkg.com) `yarn` from official website
+
+- [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://nodejs.org) `Node.js` & `npm` from official website
+- [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://pnpm.io) `pnpm` from official website
+- [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://yarnpkg.com) `yarn` from official website
 
 Open your terminal or command prompt and run the following command to create a new `React` project using `Vite` (a fast build tool often used with `React`):
+
 ```bash
 npm create vite@latest geotiff-map-viewer -- --template react-ts
 ```
-* `geotiff-map-viewer`: This specifies your project name.
-* `--template react-ts`: This specifies that you want a `React` project with `TypeScript`.
+
+- `geotiff-map-viewer`: This specifies your project name.
+- `--template react-ts`: This specifies that you want a `React` project with `TypeScript`.
 
 Navigate into your new project directory:
+
 ```bash
 cd geotiff-map-viewer
 ```
 
 Install the necessary dependencies:
+
 ```bash
 npm install
 ```
@@ -33,9 +39,11 @@ npm install
 ## 2. Install Tailwind CSS
 
 This project uses `Tailwind CSS` for styling. A utility-first `CSS` framework for rapidly building custom user interfaces. You can check `Tailwind` documentation using link below:
-* [![inline](https://img.shields.io/badge/Documentation-c0c9d5)](https://tailwindcss.com/docs) of `Tailwind CSS` from official website
+
+- [![inline](https://img.shields.io/badge/Documentation-c0c9d5)](https://tailwindcss.com/docs) of `Tailwind CSS` from official website
 
 Install it by running:
+
 ```bash
 npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
@@ -46,22 +54,21 @@ This will create `tailwind.config.js` and `postcss.config.js` files in your proj
 ### 2.1. Configure Tailwind CSS
 
 Open `tailwind.config.js` and configure the content array to scan all your `React` components for `Tailwind` classes:
+
 ```js
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
+    content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+    theme: {
+        extend: {}
+    },
+    plugins: []
 }
 ```
 
 Open your main `CSS` file (e.g., `src/index.css` or `src/App.css`) and add the `Tailwind` directives:
+
 ```css
 /* src/index.css */
 @tailwind base;
@@ -70,24 +77,26 @@ Open your main `CSS` file (e.g., `src/index.css` or `src/App.css`) and add the `
 
 /* Optional: Basic body styling for full-screen background */
 body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  background-color: #1a202c; /* Dark background */
-  font-family: 'Inter', sans-serif; /* Recommended font */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #1a202c; /* Dark background */
+    font-family: 'Inter', sans-serif; /* Recommended font */
 }
 
 /* Specific styles for the GeoTIFF map canvas container */
 .canvas-card-map {
-  background-color: black;
-  border-radius: 0.5rem; /* rounded-lg */
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
-  padding: 0; /* Canvas fills directly */
-  border: 1px solid #4a5568; /* border-gray-700 */
-  overflow: hidden; /* Ensure canvas corners are rounded */
-  display: flex; /* Use flex to center canvas if it doesn't fill entirely */
-  justify-content: center;
-  align-items: center;
+    background-color: black;
+    border-radius: 0.5rem; /* rounded-lg */
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+    padding: 0; /* Canvas fills directly */
+    border: 1px solid #4a5568; /* border-gray-700 */
+    overflow: hidden; /* Ensure canvas corners are rounded */
+    display: flex; /* Use flex to center canvas if it doesn't fill entirely */
+    justify-content: center;
+    align-items: center;
 }
 ```
 
@@ -96,6 +105,7 @@ body {
 Create a new folder `src/utils` and recreate same files structure inside the folder using JavaScript code samples provided below.
 
 ### 3.1. `prepareMap()` function
+
 ```js
 /* src/utils/prepareMap.ts */
 /**
@@ -131,15 +141,18 @@ export async function prepareMap() {
     return { width, raster, gpsToPixel };
 }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/prepareMap.ts` file:
-* An asynchronous function responsible for loading the GeoTIFF data.
-* It now uses `window.GeoTIFF.fromUrl` to fetch the `.tif` file from a specified URL (`https://scripty.app.nikdelv.in/media/open-topo-data.tif`). This URL is chosen because it provides a public GeoTIFF with proper CORS (Cross-Origin Resource Sharing) headers, which is essential for drawing on canvas from external sources.
-* It extracts the image raster data (elevation values) and georeferencing information (like `ModelPixelScale` and `ModelTiepoint`).
-* It then calculates the `gpsToPixel` transformation matrix, crucial for accurately mapping geographic coordinates to raster pixel locations.
+
+- An asynchronous function responsible for loading the GeoTIFF data.
+- It now uses `window.GeoTIFF.fromUrl` to fetch the `.tif` file from a specified URL (`https://scripty.app.nikdelv.in/media/open-topo-data.tif`). This URL is chosen because it provides a public GeoTIFF with proper CORS (Cross-Origin Resource Sharing) headers, which is essential for drawing on canvas from external sources.
+- It extracts the image raster data (elevation values) and georeferencing information (like `ModelPixelScale` and `ModelTiepoint`).
+- It then calculates the `gpsToPixel` transformation matrix, crucial for accurately mapping geographic coordinates to raster pixel locations.
 
 ### 3.2. `drawMap(body, map)` function
+
 ```js
 /* src/utils/drawMap.ts */
 import { transform } from './transform'
@@ -218,7 +231,7 @@ export function drawMap(
                 // Default elevation for out-of-bounds or invalid points (e.g., oceans)
                 elevation = -1000; // A reasonable default for ocean or unknown
             }
-            
+
             coordsMatrix[0].push(xCanvas);
             coordsMatrix[1].push(yCanvas);
             coordsMatrix[2].push(elevation);
@@ -280,20 +293,23 @@ export function drawMap(
     return { heightGroups, deltaX, deltaY };
 }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/drawMap.ts` file:
-* This function handles the core logic of drawing the map onto the canvas.
-* It takes `body` (containing user settings like `lat`, `lng`, `zoom`, `quality`, `levels`, `grayScale`, `fullMap`) and the `map` data (from `prepareMap`).
-* It defines a grid of geographic coordinates based on the current view (`fullMap` or zoomed to a `selectedPoint`).
-* For each coordinate in the grid, it:
-    * Transforms the geographic coordinate to a raster pixel coordinate using `map.gpsToPixel`.
-    * Fetches the elevation value from the `map.raster` at that pixel.
-    * Maps the elevation to a specific color generated by `generateColorRange`.
-    * Groups coordinates by their assigned color.
-* Finally, it calculates `deltaX` and `deltaY`, which are the width and height of the individual rectangles (pixels) to be drawn on the HTML canvas to represent the elevation data.
+
+- This function handles the core logic of drawing the map onto the canvas.
+- It takes `body` (containing user settings like `lat`, `lng`, `zoom`, `quality`, `levels`, `grayScale`, `fullMap`) and the `map` data (from `prepareMap`).
+- It defines a grid of geographic coordinates based on the current view (`fullMap` or zoomed to a `selectedPoint`).
+- For each coordinate in the grid, it:
+    - Transforms the geographic coordinate to a raster pixel coordinate using `map.gpsToPixel`.
+    - Fetches the elevation value from the `map.raster` at that pixel.
+    - Maps the elevation to a specific color generated by `generateColorRange`.
+    - Groups coordinates by their assigned color.
+- Finally, it calculates `deltaX` and `deltaY`, which are the width and height of the individual rectangles (pixels) to be drawn on the HTML canvas to represent the elevation data.
 
 ### 3.3. `transform(a, b, M, roundToInt)` function
+
 ```js
 /* src/utils/transform.ts */
 /**
@@ -310,14 +326,17 @@ export function transform(a: number, b: number, M: number[], roundToInt = false)
     return [round(M[0] + M[1] * a + M[2] * b), round(M[3] + M[4] * a + M[5] * b)];
 }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/transform.ts` file:
-* A utility function that performs an affine transformation.
-* It takes geographic coordinates (`a` for longitude, `b` for latitude) and a transformation matrix `M` (obtained from the GeoTIFF metadata) to convert them into pixel coordinates on the raster image.
-* `roundToInt` ensures the output coordinates are integers, suitable for pixel indexing.
+
+- A utility function that performs an affine transformation.
+- It takes geographic coordinates (`a` for longitude, `b` for latitude) and a transformation matrix `M` (obtained from the GeoTIFF metadata) to convert them into pixel coordinates on the raster image.
+- `roundToInt` ensures the output coordinates are integers, suitable for pixel indexing.
 
 ### 3.4. `generateColorRange(levels, grayScale)` function
+
 ```js
 /* src/utils/generateColorRange.ts */
 /**
@@ -358,14 +377,17 @@ export function generateColorRange(levels: number, grayScale: boolean): string[]
     return grayScale ? colors : colors.reverse();
 }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/generateColorRange.ts` file:
-* This function dynamically creates an array of CSS `rgb()` color strings.
-* It can generate a gradient of colors (transitioning from red to green to blue, representing low to high elevation) or a simple grayscale gradient, based on the `grayScale` parameter.
-* The `levels` parameter controls the granularity of the color steps.
+
+- This function dynamically creates an array of CSS `rgb()` color strings.
+- It can generate a gradient of colors (transitioning from red to green to blue, representing low to high elevation) or a simple grayscale gradient, based on the `grayScale` parameter.
+- The `levels` parameter controls the granularity of the color steps.
 
 ### 3.5. `utils.ts` main export file
+
 ```js
 /* src/utils/utils.ts */
 import { prepareMap } from './prepareMap'
@@ -373,14 +395,17 @@ import { drawMap } from './drawMap'
 
 export { prepareMap, drawMap }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/utils.ts` file:
-* The primary purpose of this file is to act as a central hub for all utility functions for our project. It imports functions from other files within the same `/utils` directory and then exports them all from this single file.
+
+- The primary purpose of this file is to act as a central hub for all utility functions for our project. It imports functions from other files within the same `/utils` directory and then exports them all from this single file.
 
 ## 4. Add the `Tablist` React Component
 
 Create a new file `src/components/Tablist.tsx` and paste the entire React code provided below into it.
+
 ```js
 /* src/components/Tablist.tsx */
 /**
@@ -416,14 +441,17 @@ const Tablist: React.FC<{ list: { label?: string; active?: boolean; onClick?: ()
     </div>
 );
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/components/Tablist.tsx` file:
-* A simple, reusable React component for creating navigation tabs. It takes a list of tab configurations (`label`, `active` status, `onClick` handler) and renders them as buttons, or taking `child` param and renders it as a child.
+
+- A simple, reusable React component for creating navigation tabs. It takes a list of tab configurations (`label`, `active` status, `onClick` handler) and renders them as buttons, or taking `child` param and renders it as a child.
 
 ## 5. Add the `Input` React Component
 
 Create a new file `src/components/Input.tsx` and paste the entire React code provided below into it.
+
 ```js
 /* src/components/Input.tsx */
 /**
@@ -446,14 +474,17 @@ const Input: React.FC<{ onChange: (e: React.ChangeEvent<HTMLInputElement>) => vo
     />
 );
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/components/Input.tsx` file:
-* A simple, reusable React component for creating input fields. It takes a list of `<input/>` tag params and implementing it in stylized input filed.
+
+- A simple, reusable React component for creating input fields. It takes a list of `<input/>` tag params and implementing it in stylized input filed.
 
 ## 6. Add the `Button` React Component
 
 Create a new file `src/components/Button.tsx` and paste the entire React code provided below into it.
+
 ```js
 /* src/components/Button.tsx */
 /**
@@ -471,14 +502,17 @@ const Button: React.FC<{ onClick: (e: React.MouseEvent<HTMLButtonElement>) => vo
     </button>
 );
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/components/Button.tsx` file:
-* A simple, reusable React component for creating buttons. It takes a list of `<button/>` tag params and implementing it in stylized button.
+
+- A simple, reusable React component for creating buttons. It takes a list of `<button/>` tag params and implementing it in stylized button.
 
 ## 7. Add the `Map` React Component
 
 Create a new file `src/Map.tsx` and paste the entire React code provided below into it.
+
 ```js
 /* src/Map.tsx */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -845,89 +879,95 @@ const Map: React.FC = () => {
 
 export default Map;
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/Map.tsx` file:
-* `useState` Hooks:
-    * `isMobile`: Detects mobile screen size for responsive layout adjustments.
-    * `canvasRef`: A `useRef` hook to get a direct reference to the `<canvas/>` DOM element, allowing direct drawing operations.
-    * `isGeoTIFFLoaded`: A new state to track the loading status of the `geotiff.js` script.
-    * Dynamic `GeoTIFF` Loading:
-        * Instead of a direct `import` statement, the `geotiff.js` library is now loaded dynamically via a `<script/>` tag from a CDN within a `useEffect` hook in the `Map` component.
-        * A `isGeoTIFFLoaded` state variable tracks when the script has finished loading, ensuring that `prepareMap` (which relies on `window.GeoTIFF`) is only called once the library is available.
-        * The global `GeoTIFF` object and `TypedArray` type are declared to assist TypeScript with recognition.
-    * `map`: Stores the loaded `GeoTIFF` data (initially `undefined`).
-    * `selectedPoint`: Keeps track of the currently selected geographic point (e.g., 'Everest', 'Mariana Trench').
-    * `fullMap`: A boolean to toggle between a global map view and a zoomed-in view.
-    * `zoom`, `quality`, `levels`: Individual state variables for user input on map settings.
-    * `settings`: An object that holds the applied settings. This is separate from the individual zoom, quality, levels states to allow users to adjust settings and then click "Apply Settings" to redraw the map.
-* `useEffect` Hooks:
-    * The first `useEffect` (handle resize): Updates `isMobile` state whenever the browser window is resized.
-    * The second `useEffect` (dynamic script loading): Responsible for creating and appending the `<script/>` tag for `geotiff.js` to the document body. It updates `isGeoTIFFLoaded` once the script loads.
-    * The third `useEffect` (load map): Runs when `isGeoTIFFLoaded` changes to `true` to asynchronously load the GeoTIFF data using `prepareMap()`.
-    * The fourth, most crucial `useEffect` (drawing logic):
-        * This effect is triggered whenever `map`, `settings`, `selectedPoint`, `fullMap`, or `isMobile` changes.
-        * It gets the 2D rendering context from `canvasRef.current`.
-        * **Loading Animation**: If `map` data is `null` (not yet loaded), it initiates a `requestAnimationFrame` loop to draw a dynamic loading circle animation on the canvas. This provides visual feedback to the user while the `GeoTIFF` data is being fetched and processed.
-        * **Drawing Map**: Once `map` data is available, it cancels any ongoing loading animation, clears the canvas, and then calls `drawMap()` with the current settings and map data. It then iterates through the `heightGroups` returned by `drawMap` and draws colored rectangles on the canvas to represent the elevation.
-        * **Cleanup**: The `return` function within this `useEffect` ensures that any ongoing `requestAnimationFrame` loop (for the loading animation) is cancelled when the component unmounts or its dependencies change, preventing memory leaks.
-* JSX Structure:
-    * Renders `Tablist` components for selecting predefined geographic points and the "Full Map" view.
-    * Renders another `Tablist` for map settings (Zoom, Quality, Color Levels) which includes `Input` and `Button` components. These settings are only visible when `isMobile` is false.
-    * The main visual output is handled by the `<canvas/>` element, whose `ref` is set to `canvasRef`. The `width` and `height` attributes define its internal resolution, while the `className` applies CSS for its displayed size and responsiveness.
+
+- `useState` Hooks:
+    - `isMobile`: Detects mobile screen size for responsive layout adjustments.
+    - `canvasRef`: A `useRef` hook to get a direct reference to the `<canvas/>` DOM element, allowing direct drawing operations.
+    - `isGeoTIFFLoaded`: A new state to track the loading status of the `geotiff.js` script.
+    - Dynamic `GeoTIFF` Loading:
+        - Instead of a direct `import` statement, the `geotiff.js` library is now loaded dynamically via a `<script/>` tag from a CDN within a `useEffect` hook in the `Map` component.
+        - A `isGeoTIFFLoaded` state variable tracks when the script has finished loading, ensuring that `prepareMap` (which relies on `window.GeoTIFF`) is only called once the library is available.
+        - The global `GeoTIFF` object and `TypedArray` type are declared to assist TypeScript with recognition.
+    - `map`: Stores the loaded `GeoTIFF` data (initially `undefined`).
+    - `selectedPoint`: Keeps track of the currently selected geographic point (e.g., 'Everest', 'Mariana Trench').
+    - `fullMap`: A boolean to toggle between a global map view and a zoomed-in view.
+    - `zoom`, `quality`, `levels`: Individual state variables for user input on map settings.
+    - `settings`: An object that holds the applied settings. This is separate from the individual zoom, quality, levels states to allow users to adjust settings and then click "Apply Settings" to redraw the map.
+- `useEffect` Hooks:
+    - The first `useEffect` (handle resize): Updates `isMobile` state whenever the browser window is resized.
+    - The second `useEffect` (dynamic script loading): Responsible for creating and appending the `<script/>` tag for `geotiff.js` to the document body. It updates `isGeoTIFFLoaded` once the script loads.
+    - The third `useEffect` (load map): Runs when `isGeoTIFFLoaded` changes to `true` to asynchronously load the GeoTIFF data using `prepareMap()`.
+    - The fourth, most crucial `useEffect` (drawing logic):
+        - This effect is triggered whenever `map`, `settings`, `selectedPoint`, `fullMap`, or `isMobile` changes.
+        - It gets the 2D rendering context from `canvasRef.current`.
+        - **Loading Animation**: If `map` data is `null` (not yet loaded), it initiates a `requestAnimationFrame` loop to draw a dynamic loading circle animation on the canvas. This provides visual feedback to the user while the `GeoTIFF` data is being fetched and processed.
+        - **Drawing Map**: Once `map` data is available, it cancels any ongoing loading animation, clears the canvas, and then calls `drawMap()` with the current settings and map data. It then iterates through the `heightGroups` returned by `drawMap` and draws colored rectangles on the canvas to represent the elevation.
+        - **Cleanup**: The `return` function within this `useEffect` ensures that any ongoing `requestAnimationFrame` loop (for the loading animation) is cancelled when the component unmounts or its dependencies change, preventing memory leaks.
+- JSX Structure:
+    - Renders `Tablist` components for selecting predefined geographic points and the "Full Map" view.
+    - Renders another `Tablist` for map settings (Zoom, Quality, Color Levels) which includes `Input` and `Button` components. These settings are only visible when `isMobile` is false.
+    - The main visual output is handled by the `<canvas/>` element, whose `ref` is set to `canvasRef`. The `width` and `height` attributes define its internal resolution, while the `className` applies CSS for its displayed size and responsiveness.
 
 ## 8. Update `src/App.tsx`
 
 Modify `src/App.tsx` to render your Map component:
+
 ```js
 // src/App.tsx
-import React from 'react';
-import Map from './Map'; // Import your Map component
-import './index.css'; // Ensure your Tailwind CSS is imported
+import React from 'react'
+import Map from './Map' // Import your Map component
+import './index.css' // Ensure your Tailwind CSS is imported
 
 function App() {
-  return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4">
-      <Map />
-    </div>
-  );
+    return (
+        <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-4">
+            <Map />
+        </div>
+    )
 }
 
-export default App;
+export default App
 ```
 
 ## 9. Run Your Application
 
 Start the development server:
+
 ```bash
 npm run dev
 ```
+
 Open your web browser and navigate to the address shown in your terminal (usually http://localhost:5173). You should see your `GeoTIFF` map application running! It might show a loading animation initially while the `GeoTIFF` data is being fetched.
 
 ## Understanding the project purpose
 
 This application demonstrates a powerful concept: visualizing complex geographical data (GeoTIFFs) directly in a web browser using client-side JavaScript. It showcases how to:
-* Load and parse specialized file formats (`.tif`) using external libraries.
-* Perform complex data transformations (geographic coordinates to pixel coordinates).
-* Render dynamic graphics on an HTML `<canvas/>` element.
-* Implement interactive controls to explore the data.
-* Handle asynchronous operations and provide visual loading feedback.
-* This project serves as an excellent foundation for more advanced geospatial web applications.
+
+- Load and parse specialized file formats (`.tif`) using external libraries.
+- Perform complex data transformations (geographic coordinates to pixel coordinates).
+- Render dynamic graphics on an HTML `<canvas/>` element.
+- Implement interactive controls to explore the data.
+- Handle asynchronous operations and provide visual loading feedback.
+- This project serves as an excellent foundation for more advanced geospatial web applications.
 
 ## Next Steps
 
-* **Custom GeoTIFF**: While the `geotiff.js` CDN provides the necessary library, you might still want to load your own GeoTIFF file. If you use a local file, ensure it's placed in the `public` folder of your Vite project, and reference it like `/open-topo-data.tif`. If it's hosted on a different server, make sure that server has proper CORS headers configured.
-* **Interactive Controls**: Implement interactive controls directly on the map, such as:
-    * **Pan/Drag**: Allow users to drag the map to pan around.
-    * **Zoom In/Out**: Implement zoom functionality using mouse scroll or dedicated buttons.
-    * **Click to Get Elevation**: Display the elevation at a clicked point on the map.
-* **Performance Optimization**: For very large GeoTIFF files, consider:
-    * **Web Workers**: Offload the `drawMap` calculations to a Web Worker to keep the main thread responsive.
-    * **Tiling**: Implement a tiling strategy where only visible map tiles are rendered, loading more details as the user zooms in.
-    * **WebGL**: For more complex and high-performance rendering, consider using WebGL (e.g., with libraries like Three.js ordeck.gl) instead of 2D canvas for drawing the terrain.
-* **More Visualizations**: Explore other ways to visualize elevation data, such as contour lines, 3D wireframes, or shaded relief maps.
-* **Grayscale Toggle**: Add a toggle switch for the `grayScale` setting in the UI.
-* **Error Display**: Implement a more user-friendly error display on the canvas or within the UI if map loading or drawing fails.
+- **Custom GeoTIFF**: While the `geotiff.js` CDN provides the necessary library, you might still want to load your own GeoTIFF file. If you use a local file, ensure it's placed in the `public` folder of your Vite project, and reference it like `/open-topo-data.tif`. If it's hosted on a different server, make sure that server has proper CORS headers configured.
+- **Interactive Controls**: Implement interactive controls directly on the map, such as:
+    - **Pan/Drag**: Allow users to drag the map to pan around.
+    - **Zoom In/Out**: Implement zoom functionality using mouse scroll or dedicated buttons.
+    - **Click to Get Elevation**: Display the elevation at a clicked point on the map.
+- **Performance Optimization**: For very large GeoTIFF files, consider:
+    - **Web Workers**: Offload the `drawMap` calculations to a Web Worker to keep the main thread responsive.
+    - **Tiling**: Implement a tiling strategy where only visible map tiles are rendered, loading more details as the user zooms in.
+    - **WebGL**: For more complex and high-performance rendering, consider using WebGL (e.g., with libraries like Three.js ordeck.gl) instead of 2D canvas for drawing the terrain.
+- **More Visualizations**: Explore other ways to visualize elevation data, such as contour lines, 3D wireframes, or shaded relief maps.
+- **Grayscale Toggle**: Add a toggle switch for the `grayScale` setting in the UI.
+- **Error Display**: Implement a more user-friendly error display on the canvas or within the UI if map loading or drawing fails.
 
 ## Project Showcase
 

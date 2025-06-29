@@ -1,7 +1,8 @@
 ---
-title: "H0W_T0: Pixel_Game"
+title: 'H0W_T0: Pixel_Game'
 description: A beginner's guide to building a new stunning React project to create a pixel game in Farm Simulator genre.
 ---
+
 import Game from '../../../components/PixelGame/Game'
 
 Here's a beginner's guide to creating a React farming simulation game. This application will feature animated game elements, in-game currency, and a day-night cycle, all rendered on an HTML canvas.
@@ -9,23 +10,28 @@ Here's a beginner's guide to creating a React farming simulation game. This appl
 ## 1. Set up a New React Project
 
 First, you'll need `Node.js` and `npm` (or `pnpm` / `yarn`) installed on your machine. If you don't have them, download them from the source links below:
-* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://nodejs.org) `Node.js` & `npm` from official website
-* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://pnpm.io) `pnpm` from official website
-* [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://yarnpkg.com) `yarn` from official website
+
+- [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://nodejs.org) `Node.js` & `npm` from official website
+- [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://pnpm.io) `pnpm` from official website
+- [![inline](https://img.shields.io/badge/Download-c0c9d5)](https://yarnpkg.com) `yarn` from official website
 
 Open your terminal or command prompt and run the following command to create a new `React` project using `Vite` (a fast build tool often used with `React`):
+
 ```bash
 npm create vite@latest pixel-game -- --template react-ts
 ```
-* `pixel-game`: This specifies your project name.
-* `--template react-ts`: This specifies that you want a `React` project with `TypeScript`.
+
+- `pixel-game`: This specifies your project name.
+- `--template react-ts`: This specifies that you want a `React` project with `TypeScript`.
 
 Navigate into your new project directory:
+
 ```bash
 cd pixel-game
 ```
 
 Install the necessary dependencies:
+
 ```bash
 npm install
 ```
@@ -33,9 +39,11 @@ npm install
 ## 2. Install Tailwind CSS
 
 This project uses `Tailwind CSS` for styling. A utility-first `CSS` framework for rapidly building custom user interfaces. You can check `Tailwind` documentation using link below:
-* [![inline](https://img.shields.io/badge/Documentation-c0c9d5)](https://tailwindcss.com/docs) of `Tailwind CSS` from official website
+
+- [![inline](https://img.shields.io/badge/Documentation-c0c9d5)](https://tailwindcss.com/docs) of `Tailwind CSS` from official website
 
 Install it by running:
+
 ```bash
 npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
@@ -46,22 +54,21 @@ This will create `tailwind.config.js` and `postcss.config.js` files in your proj
 ### 2.1. Configure Tailwind CSS
 
 Open `tailwind.config.js` and configure the content array to scan all your `React` components for `Tailwind` classes:
+
 ```js
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
+    content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+    theme: {
+        extend: {}
+    },
+    plugins: []
 }
 ```
 
 Open your main `CSS` file (e.g., `src/index.css` or `src/App.css`) and add the `Tailwind` directives:
+
 ```css
 /* src/index.css */
 @tailwind base;
@@ -70,27 +77,29 @@ Open your main `CSS` file (e.g., `src/index.css` or `src/App.css`) and add the `
 
 /* Optional: Basic body styling for full-screen background */
 body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  background-color: #1a202c; /* Dark background */
-  font-family: 'Inter', sans-serif; /* Recommended font */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #1a202c; /* Dark background */
+    font-family: 'Inter', sans-serif; /* Recommended font */
 }
 
 /* Basic styles for the game canvas container */
 .canvas-card {
-  background-color: #2d3748; /* A dark slate background */
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  overflow: hidden; /* Ensures content stays within rounded corners */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    background-color: #2d3748; /* A dark slate background */
+    border-radius: 0.5rem;
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    overflow: hidden; /* Ensures content stays within rounded corners */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 canvas {
-  display: block; /* Remove extra space below canvas */
-  /* The size of the canvas element itself will be set dynamically via React component props */
+    display: block; /* Remove extra space below canvas */
+    /* The size of the canvas element itself will be set dynamically via React component props */
 }
 ```
 
@@ -99,6 +108,7 @@ canvas {
 Create a new folder `src/utils` and recreate same files structure inside the folder using JavaScript code samples provided below.
 
 ### 3.1. Game data types definitions
+
 ```js
 /* src/utils/types.ts */
 // Type definitions for game data
@@ -149,13 +159,16 @@ export interface Level {
     };
 }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/types.ts` file:
-* `PositionTurple`: Defines an array for image drawing parameters (source X, Y, width, height, destination X, Y, width, height).
-* `SlotUpgrade`, `LevelSlot`, `Level`: Interfaces that precisely structure the game's data, including prices, profits, positions, and asset configurations for different game elements (slots) and the overall level.
+
+- `PositionTurple`: Defines an array for image drawing parameters (source X, Y, width, height, destination X, Y, width, height).
+- `SlotUpgrade`, `LevelSlot`, `Level`: Interfaces that precisely structure the game's data, including prices, profits, positions, and asset configurations for different game elements (slots) and the overall level.
 
 ### 3.2. Game levels configuration object
+
 ```js
 /* src/utils/levels.ts */
 import { type Level } from './levels'
@@ -590,17 +603,20 @@ const farm: Level = {
 // Map of levels
 export const levels: Record<string, Level> = { farm };
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/levels.ts` file:
-* `farm` object defines all the static data for the "farm" level:
-    * `slots`: Details for each purchasable item (grain, corn, chicken, appleTree, etc.), including their positions on the screen (`position`), animation sprite coordinates (`animationPosition`), UI icon positions (`uiPosition`), and game mechanics like `price`, `profitValue`, and `upgradesMultiplier`.
-    * `slotsUpgrades`: An array defining the price and profit multiplier for each upgrade level.
-    * `slotStates`: Configuration for how many growth states a slot has and a callback to determine the current state based on the day cycle.
-    * `assets`: Defines the base URL, suffix, and prefixes for loading all the game's image assets (states, frames, UI, and font).
-    * `ui`: Positions for general UI elements like upgrades menu, money display, and time display, as well as configurations for different pages within the upgrades menu.
+
+- `farm` object defines all the static data for the "farm" level:
+    - `slots`: Details for each purchasable item (grain, corn, chicken, appleTree, etc.), including their positions on the screen (`position`), animation sprite coordinates (`animationPosition`), UI icon positions (`uiPosition`), and game mechanics like `price`, `profitValue`, and `upgradesMultiplier`.
+    - `slotsUpgrades`: An array defining the price and profit multiplier for each upgrade level.
+    - `slotStates`: Configuration for how many growth states a slot has and a callback to determine the current state based on the day cycle.
+    - `assets`: Defines the base URL, suffix, and prefixes for loading all the game's image assets (states, frames, UI, and font).
+    - `ui`: Positions for general UI elements like upgrades menu, money display, and time display, as well as configurations for different pages within the upgrades menu.
 
 ### 3.3. Font configuration object
+
 ```js
 /* src/utils/font.ts */
 // Font sprite sheet coordinates
@@ -615,12 +631,15 @@ export const font = {
     }
 };
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/font.ts` file:
-* Contains data for drawing text (specifically digits for money display) from a font sprite sheet. `font.digits` calculates the correct source and destination coordinates for drawing individual numbers.
+
+- Contains data for drawing text (specifically digits for money display) from a font sprite sheet. `font.digits` calculates the correct source and destination coordinates for drawing individual numbers.
 
 ### 3.4. `utils.ts` main export file
+
 ```js
 /* src/utils/utils.ts */
 import { levels } from './levels'
@@ -628,14 +647,17 @@ import { font } from './font'
 
 export { levels, font }
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/utils/utils.ts` file:
-* The primary purpose of this file is to act as a central hub for all utility functions for our project. It imports functions from other files within the same `/utils` directory and then exports them all from this single file.
+
+- The primary purpose of this file is to act as a central hub for all utility functions for our project. It imports functions from other files within the same `/utils` directory and then exports them all from this single file.
 
 ## 4. Add the `Game` React Component
 
 Create a new file `src/Game.tsx` and paste the entire React code provided below into it.
+
 ```js
 /* src/Game.tsx */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -927,7 +949,7 @@ const Game: React.FC = () => {
 
                 // Determine position for UI overlay
                 const uiPos = slotData.uiPosition.map((pos, idx) => pos * 48 + (idx === 0 || idx === 1 ? 6 : 0));
-                
+
                 // Handle purchase animation
                 if (purchaseAnimation === slotName) {
                     if (purchaseAnimationFrameRef.current === 4) { // Animation complete
@@ -938,7 +960,7 @@ const Game: React.FC = () => {
                         // Original Solid.js: .toSpliced(0, 1, (window.purchaseAnimation + 11) * 6)
                         const animUiPos: PositionTurple = [...uiPos];
                         animUiPos[0] = (purchaseAnimationFrameRef.current + 11) * 48; // Assume anim frame affects X (0th index)
-                        
+
                         ctx.drawImage(
                             levelImages.ui![upgradesPage], // Use current UI page image
                             ...animUiPos as PositionTurple // Apply the adjusted position
@@ -1152,94 +1174,100 @@ const Game: React.FC = () => {
 
 export default Game;
 ```
+
 #### Understanding the Code
 
 Let's break down the key parts of the `src/Game.tsx` file:
-* `useState` Hooks:
-    * `isMobile`: Detects mobile screen size for responsive adjustments.
-    * `level`: The currently active game level (fixed to 'farm').
-    * `levelLoaded`: Boolean to indicate if all game assets have been successfully loaded.
-    * `levelImages`: Stores the loaded `HTMLImageElement` objects for rendering.
-    * `activeSlots`: Tracks which slots the player has purchased. This, along with `slotsUpgrades`, `dayCycle`, and `playerMoney`, is initialized from `localStorage` to persist game state across sessions.
-    * `purchaseAnimation`: Manages a temporary state to trigger a visual animation when an item is purchased or upgraded.
-    * `upgradesPage`: Controls which page of the upgrades UI is currently displayed.
-* `useRef` Hooks:
-    * `canvasRef`: Provides a direct reference to the `<canvas/>` DOM element for drawing.
-    * `animationFrameRef`, `animationLoopId`, `purchaseAnimationFrameRef`, `dayLoopId`: These `useRef` instances are crucial for managing the game's animation and game loops (`setInterval` IDs and animation frame counters) without causing excessive re-renders, while still allowing access and modification across renders.
-* Dimension Calculations (`innerWidth`, `innerHeight`, `aspectWidth`, `aspectHeight`, `styleWidth`, `styleHeight`):
-    * These variables dynamically calculate the appropriate scaling factors and display sizes for the canvas and UI elements based on the screen's aspect ratio and whether it's a mobile device. This ensures the game scales correctly on different devices.
-* `styleFromPosition` and `updateUi` `useCallback` functions:
-    * `styleFromPosition`: A memoized helper that converts abstract grid positions from the `farm` config into actual pixel values for CSS positioning.
-    * `updateUi`: A memoized function responsible for drawing all the UI elements (upgrades menu, money display, time/day cycle) onto the canvas, utilizing the `levelImages` and current game state.
-* `useEffect` Hooks (Game Logic Flow):
-    * **Resize Listener**: The first `useEffect` adds and cleans up a resize event listener to update `isMobile`.
-    * **Asset Loading**: A critical `useEffect` loads all game image assets (states, animation frames, UI elements, font) asynchronously using `Promise.all`. It sets `levelLoaded` to `true` once all assets are ready, allowing the game loops to begin. This effect handles dynamic URLs, making it easier to integrate placeholder images or eventually local assets.
-    * **Main Animation Loop**: This `useEffect` sets up the `setInterval` for the core game animation. It clears the canvas, draws the background, active slots (with their current growth state), and animation frames. It also handles the visual feedback for purchases/upgrades and calls `updateUi` to render score and time.
-    * **Day Cycle Loop**: A separate `useEffect` manages the game's day cycle, which triggers profit calculation at the end of each full cycle (day 12).
-    * **State Persistence**: Another `useEffect` saves the current `activeSlots`, `slotsUpgrades`, `dayCycle`, and `playerMoney` to `localStorage` whenever these states change, ensuring the player's progress is saved.
-* JSX Structure:
-    * The main game area is composed of two overlapping `div` elements: one for the interactive click areas (zIndex: 2) and another for the actual canvas drawing (zIndex: 1).
-    * Interactive click areas (`div` elements with `onClick` handlers) are dynamically rendered based on the `levelConfig`. These invisible `div`s overlay the canvas and handle the game's core interactions: purchasing new slots or upgrading existing ones, and navigating upgrades pages.
-    * The `<canvas/>` element is where all the game's visual elements are drawn using its 2D rendering context.
+
+- `useState` Hooks:
+    - `isMobile`: Detects mobile screen size for responsive adjustments.
+    - `level`: The currently active game level (fixed to 'farm').
+    - `levelLoaded`: Boolean to indicate if all game assets have been successfully loaded.
+    - `levelImages`: Stores the loaded `HTMLImageElement` objects for rendering.
+    - `activeSlots`: Tracks which slots the player has purchased. This, along with `slotsUpgrades`, `dayCycle`, and `playerMoney`, is initialized from `localStorage` to persist game state across sessions.
+    - `purchaseAnimation`: Manages a temporary state to trigger a visual animation when an item is purchased or upgraded.
+    - `upgradesPage`: Controls which page of the upgrades UI is currently displayed.
+- `useRef` Hooks:
+    - `canvasRef`: Provides a direct reference to the `<canvas/>` DOM element for drawing.
+    - `animationFrameRef`, `animationLoopId`, `purchaseAnimationFrameRef`, `dayLoopId`: These `useRef` instances are crucial for managing the game's animation and game loops (`setInterval` IDs and animation frame counters) without causing excessive re-renders, while still allowing access and modification across renders.
+- Dimension Calculations (`innerWidth`, `innerHeight`, `aspectWidth`, `aspectHeight`, `styleWidth`, `styleHeight`):
+    - These variables dynamically calculate the appropriate scaling factors and display sizes for the canvas and UI elements based on the screen's aspect ratio and whether it's a mobile device. This ensures the game scales correctly on different devices.
+- `styleFromPosition` and `updateUi` `useCallback` functions:
+    - `styleFromPosition`: A memoized helper that converts abstract grid positions from the `farm` config into actual pixel values for CSS positioning.
+    - `updateUi`: A memoized function responsible for drawing all the UI elements (upgrades menu, money display, time/day cycle) onto the canvas, utilizing the `levelImages` and current game state.
+- `useEffect` Hooks (Game Logic Flow):
+    - **Resize Listener**: The first `useEffect` adds and cleans up a resize event listener to update `isMobile`.
+    - **Asset Loading**: A critical `useEffect` loads all game image assets (states, animation frames, UI elements, font) asynchronously using `Promise.all`. It sets `levelLoaded` to `true` once all assets are ready, allowing the game loops to begin. This effect handles dynamic URLs, making it easier to integrate placeholder images or eventually local assets.
+    - **Main Animation Loop**: This `useEffect` sets up the `setInterval` for the core game animation. It clears the canvas, draws the background, active slots (with their current growth state), and animation frames. It also handles the visual feedback for purchases/upgrades and calls `updateUi` to render score and time.
+    - **Day Cycle Loop**: A separate `useEffect` manages the game's day cycle, which triggers profit calculation at the end of each full cycle (day 12).
+    - **State Persistence**: Another `useEffect` saves the current `activeSlots`, `slotsUpgrades`, `dayCycle`, and `playerMoney` to `localStorage` whenever these states change, ensuring the player's progress is saved.
+- JSX Structure:
+    - The main game area is composed of two overlapping `div` elements: one for the interactive click areas (zIndex: 2) and another for the actual canvas drawing (zIndex: 1).
+    - Interactive click areas (`div` elements with `onClick` handlers) are dynamically rendered based on the `levelConfig`. These invisible `div`s overlay the canvas and handle the game's core interactions: purchasing new slots or upgrading existing ones, and navigating upgrades pages.
+    - The `<canvas/>` element is where all the game's visual elements are drawn using its 2D rendering context.
 
 ## 5. Update `src/App.tsx`
 
 Modify `src/App.tsx` to render your Game component:
+
 ```js
 // src/App.tsx
-import React from 'react';
-import Game from './Game'; // Import your Game component
-import './index.css'; // Ensure your Tailwind CSS is imported
+import React from 'react'
+import Game from './Game' // Import your Game component
+import './index.css' // Ensure your Tailwind CSS is imported
 
 function App() {
-  return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4">
-      <Game />
-    </div>
-  );
+    return (
+        <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-4">
+            <Game />
+        </div>
+    )
 }
 
-export default App;
+export default App
 ```
 
 ## 6. Run Your Application
 
 Start the development server:
+
 ```bash
 npm run dev
 ```
+
 Open your web browser and navigate to the address shown in your terminal (usually http://localhost:5173). You should see your farming game running with placeholder images.
 
 ## Understanding the project purpose
 
 This application demonstrates a powerful concept: building a complete interactive game within a web browser using React and HTML Canvas. It showcases how to:
-* Manage complex game state with React hooks.
-* Dynamically load and manage multiple image assets for animations and UI.
-* Draw intricate game scenes directly onto an HTML canvas.
-* Implement game loops (animation, day cycle) using `setInterval` with proper cleanup.
-* Handle user interactions (clicks) for game mechanics like purchasing and upgrading.
-* Persist game data using `localStorage`, allowing players to save their progress.
-* Design a game that is responsive to different screen sizes.
-This project serves as an excellent foundation for more complex browser-based game development.
+
+- Manage complex game state with React hooks.
+- Dynamically load and manage multiple image assets for animations and UI.
+- Draw intricate game scenes directly onto an HTML canvas.
+- Implement game loops (animation, day cycle) using `setInterval` with proper cleanup.
+- Handle user interactions (clicks) for game mechanics like purchasing and upgrading.
+- Persist game data using `localStorage`, allowing players to save their progress.
+- Design a game that is responsive to different screen sizes.
+  This project serves as an excellent foundation for more complex browser-based game development.
 
 ## Next Steps
 
-* **Implement Real Assets**: Replace the placehold.co URLs with your actual game sprites and place them in the public/media/Farm directory. This is crucial for the game's visual appeal.
-* **Improve UI/UX**:
-    * Add visual feedback (e.g., text overlays, subtle animations) for when purchases or upgrades are not affordable.
-    * Create actual UI elements for the upgrades pages instead of just invisible click areas, displaying prices and upgrade benefits.
-    * Consider adding sound effects for purchases, profits, and other events.
-* **Expand Game Mechanics**:
-    * Introduce different types of levels with unique slots and assets.
-    * Add more complex upgrade trees or item interactions.
-    * Implement an inventory system for collected items.
-    * Add challenges, quests, or achievements.
-* **Performance Optimization**: For more complex games, consider:
-    * **Off-screen Canvas/Web Workers**: Perform heavy drawing calculations or game logic in a Web Worker to keep the main thread free and UI responsive.
-    * **Sprite Sheet Optimization**: Ensure your asset sprite sheets are efficiently packed.
-    * **Drawing Optimizations**: Reduce redundant drawing operations on the canvas.
-* **Error Handling**: Implement more robust error handling for asset loading and game logic.
-* **Authentication & Cloud Save**: For a persistent multiplayer or cross-device experience, integrate a backend (e.g., Firebase Firestore as suggested by the platform instructions) to save game state in the cloud instead of just `localStorage`.
+- **Implement Real Assets**: Replace the placehold.co URLs with your actual game sprites and place them in the public/media/Farm directory. This is crucial for the game's visual appeal.
+- **Improve UI/UX**:
+    - Add visual feedback (e.g., text overlays, subtle animations) for when purchases or upgrades are not affordable.
+    - Create actual UI elements for the upgrades pages instead of just invisible click areas, displaying prices and upgrade benefits.
+    - Consider adding sound effects for purchases, profits, and other events.
+- **Expand Game Mechanics**:
+    - Introduce different types of levels with unique slots and assets.
+    - Add more complex upgrade trees or item interactions.
+    - Implement an inventory system for collected items.
+    - Add challenges, quests, or achievements.
+- **Performance Optimization**: For more complex games, consider:
+    - **Off-screen Canvas/Web Workers**: Perform heavy drawing calculations or game logic in a Web Worker to keep the main thread free and UI responsive.
+    - **Sprite Sheet Optimization**: Ensure your asset sprite sheets are efficiently packed.
+    - **Drawing Optimizations**: Reduce redundant drawing operations on the canvas.
+- **Error Handling**: Implement more robust error handling for asset loading and game logic.
+- **Authentication & Cloud Save**: For a persistent multiplayer or cross-device experience, integrate a backend (e.g., Firebase Firestore as suggested by the platform instructions) to save game state in the cloud instead of just `localStorage`.
 
 ## Project Showcase
 
