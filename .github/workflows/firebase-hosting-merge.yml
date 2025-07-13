@@ -21,3 +21,4 @@ jobs:
                   projectId: hub-by-nikdelvin
               env:
                   FIREBASE_CLI_EXPERIMENTS: webframeworks
+                  NODE_ENV: production
